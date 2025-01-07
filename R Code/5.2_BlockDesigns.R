@@ -29,7 +29,10 @@ Anova(lm2)
 #####################################################################################
 ## ANALYZE DATA USING RANDOMIZED COMPLETE BLOCK DESIGN WITH BLOCK AS A RANDOM EFFECT
 
-### NOTE: Can use lme4::lmer instead of glmmTMB. lme4 is more stable and less likely to get errors/warnings.
+### NOTE: Can use lme4::lmer instead of glmmTMB. glmmTMB is new and flexible, but can be buggier. 
+###       lme4 is more stable and less likely to get errors/warnings, although may still have issues with the version of Matrix or TMB.
+###       if you get an error from lm3, try this line of code:
+# install.packages('TMB', type = 'source')
 
 ## block as random effect
 lm3 <- glmmTMB(count~spray+(1|block), data=d)
