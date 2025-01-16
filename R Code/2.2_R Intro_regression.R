@@ -45,11 +45,6 @@ glance(lm1) ## glance() can be used to look at other components of the model
 augment(lm1) ## augment will print off the fitted vales and residuals
 
 
-### make plot with best-fit regression line (ie. the mean of circumference for each value of age) and intercept
-ggplot(r1, aes(x=temp, y=mass))+geom_point(size=3)+
-  geom_smooth(method="lm")+
-  theme_bw()
-
 ## check assumptions of model by examining residuals ####
 hist(resid(lm1)) ## residuals should be normally distributed
 plot(resid(lm1)~fitted(lm1))  ## residuals should be evenly dispersed around 0 across the range of x's
@@ -63,5 +58,8 @@ qqPlot(resid(lm1))  ## calls from car package, residuals should line up pretty c
 ## assumptions can be slightly violated without causing problems, for example this model is seems decent
 
 ## fancy-ish plot ####
-ggplot(r1, aes(x=temp, y=mass))+geom_point(size=3,color='blue')+geom_smooth(method='lm')+theme_bw()
+ggplot(r1, aes(x=temp, y=mass))+
+  geom_point(size=3,color='blue')+
+  geom_smooth(method='lm')+
+  theme_bw(base_size = 16)
 
