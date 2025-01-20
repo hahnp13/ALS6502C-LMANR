@@ -99,7 +99,7 @@ ggplot(data=iris, aes(x=Sepal.Width, y=Sepal.Length, shape=Species, color=Specie
   theme_bw(base_size = 14) # increase font size
 
 
-## BREAKOUT GROUP CHALLENGE Part 1 ##############################################
+## Try on your own ##############################################
 
 ### Use the mtcars dataset ####
 data(mtcars)
@@ -195,7 +195,7 @@ plot1 <- ggplot(iris, aes(x=Species, y=Sepal.Length, fill=Species)) +  ## plot n
 ### save as .tiff file ####
 ggsave("ExamplePlot.tiff", plot1, width=4, height=3, units="in", dpi=300)
 
-## BREAKOUT GROUP CHALLENGE Part 2 ###############################################
+## Try on your own Part 2 ###############################################
 
 ### Use the mtcars dataset ####
 data(mtcars)
