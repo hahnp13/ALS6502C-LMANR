@@ -193,7 +193,7 @@ plot1 <- ggplot(iris, aes(x=Species, y=Sepal.Length, fill=Species)) +  ## plot n
 
 
 ### save as .tiff file ####
-ggsave("ExamplePlot.tiff", plot1, width=4, height=3, units="in", dpi=300)
+ggsave("ExamplePlot.tiff", plot1, width=6, height=3, units="in", dpi=300)
 
 ## Try on your own Part 2 ###############################################
 
