@@ -17,6 +17,7 @@ yield <- as_tibble(ortiz.tomato.yield)
 head(yield)
 str(yield)
 glimpse(yield)
+skim(yield) # from skimr package
 
 ##################################################################################################################################
 ## Q1. Look at the structure of the data. How many environments are in the dataset? How many genotypes are in the dataset?
@@ -29,7 +30,8 @@ glimpse(yield)
 ##      2a. yield (number of tomatoes per hectare) and weight (weight per fruit in g). Convert it to kg. 
 ##      Also, genotype 'OP10' was mislabel. It should be 'OP5'.
 ##      2b. In the same line of code, use gsub() to replace 'OP10' with 'OP5'.
-##      Note that if you rewrite over the original dataset and make a mistake, you can reload it (line 15) to clear your errors.
+##      Note that if you rewrite over the original dataset and make a mistake, you can reload it (line 15-16) to clear your errors.
+
 
 
 ##################################################################################################################################
@@ -40,14 +42,15 @@ glimpse(yield)
 
 
 
-
 ## BONUS: Do Q2 and Q3 all in one code block
+
 
 
 ##################################################################################################################################
 ## Q4. Make the same plot above but filter out any environment that has 1 for Driv.
 ##     Hint: You'll need to look in the covs datasets, an associated file, to see which environments have Driving present and use this for filtering.
-   
+##     Hint #2: You may need to merge the two datasets into one big one so that you can filter based on Driv.
+
 data("ortiz.tomato.covs")
 covs <- as_tibble(ortiz.tomato.covs)
 
@@ -58,9 +61,10 @@ skim(covs)
 ##     Another hint: you'll need to merge the datasets together in order to filter out the ones that have no Driving.
 ##     Hint 3: use the full_join command below to merge the datasets. They are relational.
 
-## code to join: replace the dataset if you called your summarized yield dataset something other than 'yield1'. 
+## code to join: replace the DATASET in the code below with the ones you want to merge. 
+## If you called your summarized yield dataset something other than 'yield1'. 
 ##  You can specify the ID column for linking using by='XXXXXX' (but this is not necessary).
-tomato <- full_join(yield1,covs)
+tomato <- full_join(DATASET1, DATASET2)
 
 
 
