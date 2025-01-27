@@ -79,7 +79,8 @@ means_PetLen2 <- aggregate(Petal.Length~Species, FUN="mean", data=iris1) ## base
 
 
 ### summarize multiple variables by species use summarize_all()
-means1 <- iris1 %>% select(Sepal.Length, Sepal.Width, Petal.Length, Petal.Width, lnPS.Len, Species) %>%  group_by(Species) %>% 
+means1 <- iris1 %>% select(Sepal.Length, Sepal.Width, Petal.Length, Petal.Width, lnPS.Len, Species) %>%  
+  group_by(Species) %>% 
   summarize_all(list(mean=mean,sd=sd,n=length))
 means1
 
@@ -91,8 +92,10 @@ iris_long <- iris1 %>% group_by(Species) %>%
 head(iris_long)
 
 ### calculate mean, sd, and n for each Species X trait combo and then calculate SE
-means2 <- iris_long %>% group_by(Species,Trait) %>% summarize(mean=mean(value), sd=sd(value), n=length(value)) %>% 
-  mutate(se=sd/sqrt(n)) %>% filter(Trait!='lnPS.Len')
+means2 <- iris_long %>% group_by(Species,Trait) %>% 
+  summarize(mean=mean(value), sd=sd(value), n=length(value)) %>% 
+  mutate(se=sd/sqrt(n)) %>% 
+  filter(Trait!='lnPS.Len')
 head(means2)
 
 ### note that lines 87-88 and 91-92 could all be done in one long piped command
