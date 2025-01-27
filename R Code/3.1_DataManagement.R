@@ -51,6 +51,10 @@ skim(iris1)        ## skim from skimr package
 
 # Tidyverse - making and modifying variables ###################################################
 
+## the ' %>% ' function (from tidyverse, dplyr package) is called a "pipe". It allows you to chain together commands.
+## You can read the pipe as "and then do".
+## There is also a pipe in base R that works similarily ' |> ' 
+
 ## mutate() will allow you create and modify variables
 iris1 <- iris1 %>% mutate(Plant=1:length(Species), 
                           PetSep.Length=Petal.Length+Sepal.Length, 
@@ -94,12 +98,14 @@ head(means2)
 ### note that lines 87-88 and 91-92 could all be done in one long piped command
 means2a <- iris1 %>% group_by(Species) %>% 
   pivot_longer(cols=c(Sepal.Length, Sepal.Width, Petal.Length, Petal.Width, lnPS.Len), names_to = 'Trait', values_to = 'value') %>% 
-  group_by(Species,Trait) %>% summarize(mean=mean(value), sd=sd(value), n=length(value)) %>% 
-  mutate(se=sd/sqrt(n)) %>% filter(Trait!='lnPS.Len')
+  group_by(Species,Trait) %>% 
+  summarize(mean=mean(value), sd=sd(value), n=length(value)) %>% 
+  mutate(se=sd/sqrt(n)) %>% 
+  filter(Trait!='lnPS.Len')
 means2a
 
 # Make plot #### 
-### below are two plots to start with. One is ineffective and one is more effective.
+### below are two plots to start with. The first one is perhaps less effective than the second.
 
 ggplot(data=means2, aes(x=Species, y=mean, fill=Trait)) + 
   geom_point(size=5, position=position_dodge(width=0.25), pch=22) + labs(y="Floral part measurement (mm)") +
