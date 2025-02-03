@@ -17,69 +17,47 @@ data("ortiz.tomato.covs")
 yield <- ortiz.tomato.yield %>% filter(gen=='OP15'|gen=='OP3') %>% droplevels()  ## filter data. 
             ## Need to use 'droplevels()' otherwise it "remembers" the levels that are filtered out. Sometimes it is problematic.
 
-## examine data structure
+################################################################################
+## First, examine data structure. We will focus on the response variable "yield"
 head(yield)
 str(yield)
 glimpse(yield)
 
 #################################################################################
-## Q1: Examine the mean, sd, and min/max of yield and weight.
-##     Do this for the full dataset and for the two genotypes separately.
-## Are the means and medians similar for yield? Does the distribution seem skewed, positively or negatively?
-## Are the means and medians similar for weight? Does the distribution seem skewed, positively or negatively?
+# Q1. Check for 1) outliers and 3) distribution (ie. normality) in the response variable of "yield"  ####
 
+## Examine plots to visually assess for outliers and distribution, plot by 
 
+## Look at median, means, etc. to check for skew
 
-
-#################################################################################
-## Q2: Examine the distributions for yield and weight (separate ggplots). 
-##  Is the distribution skewed?
-##  Any potential outliers? If potential outliers, where would you subset the data to exclude them?
-
-
-
-## stop here on Tuesday
-
-################################################################################
-#### Q3: Merge in covariates from the covs datafile. 
-####     Make sure to filter outlier if you decided to remove any.
-####     Variables coded as 0/1 will need to be converted to factors using as.factor()
-####     Examine relationship using corplot and/or ggpairs()
-####     Use na.omit() to omit NA values
-
-
-
-
-
-## examine variable relationships using ggpairs (HINT: error message is helpful, might need to remove one variable)
-
+### skim and skim by group
 
 
 ################################################################################
-#### Q4: Wow that's a lot! 
-####      use select() to select just a few variables to view. 
-####      Pick ones that seem important and make sure to include 'gen' and 'Driv' plus some continuous variables
-####      Examine relationships using corplot and/or ggpairs()
+# Q2. Examine potential covariates for potential colinearity ####
+dat1 <- full_join(ortiz.tomato.covs,yield,by="env") %>% 
+  mutate(gen=as.factor(gen), Driv=as.factor(Driv), Trim=as.factor(Trim), Irr=as.factor(Irr))
 
+### Any potential problematic correlations?
+### Hint: use ggpairs(), may need to remove a problematic column
+
+
+## also try cor and corrplot
+
+
+### Focus just on a few covariates
 dat2 <- dat1 %>% 
-  select(gen, Driv , )
-
-####      Examine relationships using corplot and/or ggpairs()
-ggpairs(dat2, aes(color=gen))
+  select(gen, Driv, Dha,MnT,Prec,yield)
 
 
 ################################################################################
-################################################################################
-#### Q5a: print off a table showing means and sd for the two genotypes and one more categorical variable (so 2 grouping factors)
-##        (pick either yield or weight as the response variable)
+# Q3. Examine relationship between yield and potential covariates ####
+## print off a table showing means and sd for the two genotypes and one more categorical variable (so 2 grouping factors; use Driv as the other grouping factor)
 
+#### make a boxplot showing how yield differs by genotype and one more categorical variable (Driv).
+## hint: use x= and color= in the aes()
 
-#### Q5b: make a boxplot showing how one of your response variables (pick either yield or weight) differs by genotype and one more categorical variable.
-            ## hint: use x= and color= in the aes()
+ggplot(dat2, aes(x=gen, y=weight, color=as.factor(Driv))) + geom_boxplot()
 
-
-
-#### Q5c: make a scatterplot showing how one of your response variables (pick either yield or weight) differs by genotype and one continuous variable.
-            ##  hint: use x= and color= in the aes()
-
-
+#### make a scatterplot showing how one of your response variables (pick either yield or weight) differs by genotype and one continuous variable.
+##  hint: use x= and color= in the aes()
