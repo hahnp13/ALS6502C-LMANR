@@ -30,7 +30,6 @@ ggplot(d1, aes(x=spray, y=y, fill=lead)) + geom_violin(scale="width", adjust=2) 
 ## Q4. Try a generalized linear model using a Poisson distribution. How are the residuals? 
 ##      How do the emmeans differ between the linear and log-linear models?
 ##      How do the SE differ between the linear and log-linear models?
-##      Which of the three models has the lowest AIC?
 ##      Check overdispersion using 'check_overdispersion' from performance package
 
 
