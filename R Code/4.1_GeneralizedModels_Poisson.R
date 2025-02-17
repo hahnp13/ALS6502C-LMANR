@@ -91,7 +91,7 @@ emmeans(glm1, ~spray) ## emmeans::emmmeans will rebuild the model for you
 # coefficients are on the log-scale (look at model)
 
 emmeans(glm1, pairwise~spray, type='response')  ## adding 'pairwise' will conduct pairwise contrasts -- ie. compare each group mean to the others
-# automatical adjusts p-values using the 'tukey' adjust. Can change this if you want using adjust=XX
+# automatically adjusts p-values using the 'tukey' adjust. Can change this if you want using adjust=XX
 # the type='response' will back-transform (ie. exponentiate) to the original scale   
 
 ## compare residuals for normal, log-transformed, and poisson models #### 
@@ -118,12 +118,24 @@ glm2 <- glmmTMB(count~spray, data=d, family='nbinom2')
 Anova(glm2)
 summary(glm2) ## can look at dispersion parameter
 
-AIC(lm1, glm1, glm2)
+## check assumptions of model by examining residuals
+hist(resid(glm2)) ## residuals should be normally distributed, but sometimes aren't for GLMs
+plot(resid(glm2)~fitted(glm2)) +  ## residuals should be evenly dispersed around 0 across the range of x's
+  abline(h=0)                               # funnel shapes or curvature is bad
+
+qqPlot(resid(glm2))  ## calls from car package, residuals should line up pretty closely to the blue line
+# points that drift from line might be outliers
+boxplot(resid(glm2) ~ d$spray)  ## variances should be homogeneous for each group
+
+
 
 ### look at residuals using simulateResiduals from DHARMa package ####
 library(DHARMa)
+simulateResiduals(lm1, plot=T) ## linear model
+simulateResiduals(lm2, plot=T) ## log-linear model
 simulateResiduals(glm1, plot=T) ## poisson model
 simulateResiduals(glm2, plot=T) ## NB model
+
 hist(simulateResiduals(glm2))
 
 ### print means - nearly identical to Poisson in this case ####
