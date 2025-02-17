@@ -42,7 +42,6 @@ library(DHARMa)
 plot(simulateResiduals(ENTER_MODEL_NAME_HERE))
 
 ## Q6. Fit a model with a negative binomial distribution using glmmTMB() with family='nbinom2'
-      ## Do does the AIC and residuals compare to the other models?
 
 
 
