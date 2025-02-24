@@ -43,12 +43,9 @@ hist(d1$y/d1$n) ## histogram of distribution
 
 #5b. Correct for overdispersion, if necessary.
 #HINT: To correct for overdisperion with binomial, you have two options 
-          #1) add an observation-level random effect (see code for making 'obs' variable below)
-          #2) use a family=betabinomial
+          #1) add an observation-level random effect (will return to this later)
+          #2) use a family=betabinomial (USE THIS OPTION)
 
-#for option 1: make a new variable with a unique value per observation
-d1$obs <- 1:96
-# then add the 'obs' term to your model as a random effect like this '+ (1|obs)'. Need to use glmmTMB for random effects.
 
 
 #6. Examine the predicted means or probabilities. How do they compare to the raw proportions from Q1?
