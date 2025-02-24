@@ -4,6 +4,7 @@ library(car)
 library(agridat)
 library(DHARMa)
 library(viridis)
+library(glmmTMB)
 
 # LOAD TITANIC SURVIVAL DATASET ####
 data("TitanicSurvival")
@@ -14,7 +15,7 @@ head(t1)
 ggplot(t1, aes(x=passengerClass, y=survived, color=sex)) + geom_jitter(height=.2, width=0.2)
 
 ## construct a generalized linear model to estimate survival as a function of sex and passengerClass. Include Age as co-variate.
-tglm1 <- glm(survived ~ sex * passengerClass + age, data=t1, family = binomial(link = "logit"))
+tglm1 <- glmmTMB(survived ~ sex * passengerClass + age, data=t1, family = binomial(link = "logit"))
 
 ## print off anova table
 Anova(tglm1)
@@ -23,12 +24,12 @@ Anova(tglm1)
 summary(tglm1)
 
 ## Check residuals
-hist(tglm1$residuals) ## residuals should be normally distributed, even for glm
-plot(tglm1$residuals~tglm1$fitted.values) +  ## residuals should be evenly dispersed around 0 across the range of x's
+hist(residuals(tglm1)) ## residuals should be normally distributed, even for glm
+plot(residuals(tglm1)~fitted(tglm1)) +  ## residuals should be evenly dispersed around 0 across the range of x's
   abline(h=0)                               # funnel shapes or curvature is bad
 
-qqPlot(tglm1$residuals)  ## residuals should line up pretty closely to the blue line
-boxplot(tglm1$residuals ~ t1$passengerClass)  ## variances should be homogeneous for each group
+qqPlot(residuals(tglm1))  ## residuals should line up pretty closely to the blue line
+boxplot(residuals(tglm1) ~ t1$passengerClass)  ## variances should be homogeneous for each group
 
 ## simulate residuals
 hist(simulateResiduals(tglm1))
