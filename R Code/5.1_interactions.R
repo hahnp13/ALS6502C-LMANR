@@ -3,6 +3,12 @@ library(tidyverse)   ### load tidyverse
 library(car)         ### load car package, which is helpful for analyzing linear models
 library(emmeans)     ### load emmeans package, which is helpful for getting means from linear models
 library(glmmTMB)
+library(broom.mixed)
+
+## MAY NEED TO REMOVE AND REINSTALL LME4 PACKAGE ####
+# remove.packages("lme4")
+# install.packages("lme4", type="source")
+
 
 # ANCOVA ####
 #### assemble data with covariate (don't worry about the code...it just makes up some data)##
@@ -41,11 +47,13 @@ ancova_means
 lm1i_coef <- as.data.frame(emmeans(lm1i, ~spray))
 ## extract intercepts and add slopes into new dataframe
 lm1i_coef2 <- as.data.frame(emmeans(lm1i, ~spray, at=list(weeds=0)))
-lm1i_coef2$slope <- coef(lm1i)[5]
+lm1i_coef2$slope <- tidy(lm1i)$estimate[5] 
 
 
 ## plot the data with the fitted model
-ggplot(data=d, aes(x=weeds,y=count)) + geom_point() + facet_wrap(~spray) + 
+ggplot(data=d, aes(x=weeds,y=count)) + 
+  geom_point() + 
+  facet_wrap(~spray) + 
   geom_abline(data=lm1i_coef2, aes(intercept=emmean, slope=slope))+
   geom_point(data=lm1i_coef2, aes(x=0,y=emmean),color="red")+
   geom_point(data=lm1i_coef, aes(x=mean(d$weeds),y=emmean),color="blue", size=2)
