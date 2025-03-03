@@ -33,6 +33,8 @@ ggplot(ChickWeight, aes(x=Time,y=weight))+geom_point()+facet_wrap(~Diet)+geom_sm
 ######## PART 2  
 library(lme4) # install if needed, can use instead of glmmTMB
 
+data("ChickWeight")
+ChickWeight$Diet <- as.factor(ChickWeight$Diet)
 
 ## Q4. The ChickWeight dataset contains measurements on 50 chicks fed four different diets over a 21 day period.
 ##    Last time we did an ANCOVA to compare the weights at the end of the experiment (Time=20).
@@ -42,10 +44,12 @@ library(lme4) # install if needed, can use instead of glmmTMB
 ##    Construct a more appropriate model (use random effects if justified) and compare the diets.
 ##    Which diets differ significantly? How do the results differ from your model last week?
 
+
 ## Q5. How much variation is there among chicks? (ie. what is the variance component?)
 ##     How might this help to explain the difference in emmeans between your old and new model?
 
-data("ChickWeight")
-ChickWeight$Diet <- as.factor(ChickWeight$Diet)
+## Q6. Check residuals. How do they look? (we will return to this in a couple weeks to fix any potential issues)
 
+
+## Q7. Bonus- extract the BLUPs and plot a histogram
 
