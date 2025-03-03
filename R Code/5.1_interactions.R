@@ -3,7 +3,7 @@ library(tidyverse)   ### load tidyverse
 library(car)         ### load car package, which is helpful for analyzing linear models
 library(emmeans)     ### load emmeans package, which is helpful for getting means from linear models
 library(glmmTMB)
-library(broom.mixed)
+library(broom.mixed) ### INSTALL and load 
 
 ## MAY NEED TO REMOVE AND REINSTALL LME4 PACKAGE ####
 # remove.packages("lme4")

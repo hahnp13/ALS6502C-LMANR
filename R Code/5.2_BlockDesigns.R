@@ -19,11 +19,11 @@ ggplot(d, aes(x=spray,y=count)) + geom_boxplot(outlier.shape = NA) + geom_jitter
 
 ### construct and compare linear models with and without blocking
 ## no block model
-lm1 <- glmmTMB(count~spray, data=d)
+lm1 <- lm(count~spray, data=d) # using lm() so that we can see df; glmmTMB doesn't calculate df's
 Anova(lm1)
 
 ## block as fixed effect
-lm2 <- glmmTMB(count~spray+block, data=d)
+lm2 <- lm(count~spray+block, data=d)
 Anova(lm2)
 
 #####################################################################################
@@ -33,10 +33,17 @@ Anova(lm2)
 ###       lme4 is more stable and less likely to get errors/warnings, although may still have issues with the version of Matrix or TMB.
 ###       if you get an error from lm3, try this line of code:
 # install.packages('TMB', type = 'source')
+# install.packages('lme4', type = 'source')
 
 ## block as random effect
 lm3 <- glmmTMB(count~spray+(1|block), data=d)
 Anova(lm3)
+
+### alterantive is to use lme4::lmer and lmerTest::anova to see ddf's
+library(lme4)
+library(lmerTest)
+lm3a <- lmer(count ~ spray+(1|block), data=d)
+anova(lm3a)
 
 #### compare summary() for fixed vs. random blocking effect
 summary(lm2)
