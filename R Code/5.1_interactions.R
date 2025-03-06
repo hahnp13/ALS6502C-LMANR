@@ -8,6 +8,8 @@ library(broom.mixed) ### INSTALL and load
 ## MAY NEED TO REMOVE AND REINSTALL LME4 PACKAGE ####
 # remove.packages("lme4")
 # install.packages("lme4", type="source")
+# remove.packages("Matrix")
+# install.packages("Matrix", type="source")
 
 
 # ANCOVA ####
@@ -107,17 +109,19 @@ lm1is <- glmmTMB(count ~ spray + weeds + spray:weeds, data=d)
 Anova(lm1is)
 summary(lm1is)
 
-mean(d$weeds)
 
 # extract means at mean weed cover
 emmeans(lm1is, ~ spray)
 
+mean(d$weeds)
+
 emmeans(lm1is, ~ spray, at=list(weeds=37.70208)) 
 
-# extract means at 25% weed cover
+# extract means at 0, 25%, 50%, 75% weed cover
+emmeans(lm1is, ~ spray, at=list(weeds=0)) 
 emmeans(lm1is, ~ spray, at=list(weeds=25)) 
 emmeans(lm1is, ~ spray, at=list(weeds=50)) 
-emmeans(lm1is, ~ spray, at=list(weeds=50)) 
+emmeans(lm1is, ~ spray, at=list(weeds=75)) 
 
 # extract slopes for each group
 emtrends(lm1is, ~ spray, var="weeds", infer=T)
