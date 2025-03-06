@@ -97,3 +97,27 @@ ggplot(data=d, aes(x=weeds,y=count)) + geom_point() + facet_wrap(~spray) +
 ggplot(d, aes(x=weeds,y=count)) + geom_point() + facet_wrap(~spray) + 
   geom_smooth(method='lm', color='black')+theme_bw(base_size = 16)
 
+# ------------------------------------------------------------------#
+# PART 2: Working with emmeans and emtrends ####
+
+# ANCOVA: multiple intercept AND slope model ####
+lm1is <- glmmTMB(count ~ spray + weeds + spray:weeds, data=d)
+
+# print Anova and summary of multiple slope and multiple intercept model
+Anova(lm1is)
+summary(lm1is)
+
+mean(d$weeds)
+
+# extract means at mean weed cover
+emmeans(lm1is, ~ spray)
+
+emmeans(lm1is, ~ spray, at=list(weeds=37.70208)) 
+
+# extract means at 25% weed cover
+emmeans(lm1is, ~ spray, at=list(weeds=25)) 
+emmeans(lm1is, ~ spray, at=list(weeds=50)) 
+emmeans(lm1is, ~ spray, at=list(weeds=50)) 
+
+# extract slopes for each group
+emtrends(lm1is, ~ spray, var="weeds", infer=T)
