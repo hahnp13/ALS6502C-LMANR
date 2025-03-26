@@ -45,7 +45,7 @@ emmeans(mm2, pairwise~nitro)
 
 ## Two-way anova with block and nitro nested within block as random effects
 ## Fully embrace the nestedness and include plot as a random effect instead of averaging (n=108 data points, use them all!)
-mm3 <- lmer(yield ~ gen*nitro+(1|loc/nitro/gen), data=gomez)
+mm3 <- lmer(yield ~ nitro*gen+(1|loc/nitro/gen), data=gomez)
 anova(mm3) ## identical to averaged model in mm2
 summary(mm3)  ## additional variance component, so no information sacrificed
 
@@ -63,6 +63,7 @@ cld(mm3em)
 
 ## extract means and make plot of nitrogen emmeans with CLD
 n1 <- emmeans(mm3, ~nitro) %>% as.data.frame()
+cld(emmeans(mm3, ~nitro)) # compact letter display from multcomp package
 
 ggplot(n1, aes(x=nitro, y=emmean)) + geom_point(size=5) + 
   geom_errorbar(aes(ymin=lower.CL, ymax=upper.CL), width=0, lwd=2) + 
@@ -79,7 +80,7 @@ ggplot(n1, aes(x=nitro, y=emmean)) + geom_point(size=5) +
 # 4. How do the results change depending on whether you include a block or split-plot?
 # 4a. How big is the blocking and split-plot effect?
 
-d1 <-read_csv("InsectData.csv")
+d1 <-read_csv("R Code/InsectData.csv")
 head(d1)
 d1$N_Add <- factor(d1$N_Add, levels=c("No.N","Low.N","Med.N","High.N"))  ## reorder factor levels
 
@@ -110,6 +111,7 @@ emmeans(lm2, pairwise ~ N_Add:grazed) # means and contrasts for Nitrogen * grazi
 emmeans(lm2, pairwise ~ N_Add|grazed) # means and contrasts Nitrogen sliced by grazing treatment
 
 ## extract means and make plot of nitrogen emmeans with CLD
+library(viridis)
 gn1 <- emmeans(lm2, ~N_Add:grazed) %>% as.data.frame()
 
 ggplot() + 
