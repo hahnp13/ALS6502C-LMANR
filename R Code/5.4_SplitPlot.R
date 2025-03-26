@@ -24,15 +24,16 @@ gomez_summarized <- gomez %>% group_by(loc,nitro,gen) %>% summarize(yield=mean(y
 
 
 ## Regular two-way anova using summarized dataset -- no blocking 
-mm0 <- lm(yield ~ gen*nitro, data=gomez_summarized)
+mm0 <- lm(yield ~ nitro*gen, data=gomez_summarized)
 anova(mm0)
 
 ## Two-way anova with block as a random effect
-mm1 <- glmmTMB(yield ~ gen*nitro+(1|loc), data=gomez_summarized)
-Anova(mm1)
+mm1 <- lmer(yield ~ nitro*gen+(1|loc), data=gomez_summarized)
+Anova(mm1) # Wald chi-sq test (Type II) from car package
+anova(mm1) # F-test (Type III) from lmerTest package
 
 ## Two-way anova with block and nitro nested within block as random effects
-mm2 <- lmer(yield ~ gen*nitro+(1|loc/nitro), data=gomez_summarized)
+mm2 <- lmer(yield ~ nitro*gen+(1|loc/nitro), data=gomez_summarized)
 Anova(mm2)
 anova(mm2)
 
@@ -70,7 +71,7 @@ ggplot(n1, aes(x=nitro, y=emmean)) + geom_point(size=5) +
 
 
 ##############################################################################################
-##### R CHALLENGE ########################################################
+##### R CHALLENGE (not to turn in; just for fun ##############################################
 # Do grazing or Nitrogen affect insect abundance?
 # 1. Construct an appropriate linear model
 # 2. Model assumptions met?
