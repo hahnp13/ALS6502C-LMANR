@@ -1,3 +1,7 @@
+library(car)
+library(glmmTMB)
+library(tidyverse)
+
 # Create a data frame
 df <- data.frame(
   group = factor(rep(c("one", "two"), each = 3)),  # Categorical predictor
@@ -5,6 +9,24 @@ df <- data.frame(
 )
 
 df %>% group_by(group) %>% summarize(mean=mean(value))
+
+# make plot
+ggplot(df, aes(x=group, y=value))+
+  geom_boxplot()+
+  geom_point(size=5)+
+  theme_bw(base_size = 20)
+
+
+modelf <- aov(value ~ group, data=df)
+summary(modelf)
+Anova(modelf)
+
+modelx2 <- glmmTMB(value ~ group, data=df)
+summary(modelx2)
+Anova(modelx2)
+
+
+
 
 2^2/sd(df$value)
 
