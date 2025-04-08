@@ -39,6 +39,25 @@ x2 <- modelx2 <- (2/.6667)^2
 1-pchisq(x2, 1)
 
 
+## three groups
+df3 <- data.frame(
+  group = factor(rep(c("one", "two", "three"), each = 3)),  # Categorical predictor
+  value = c(2,3,4,4,5,6,1,2,3)  # Response variable
+)
+
+modelf <- aov(value ~ group, data=df3)
+summary(modelf)
+Anova(modelf)
+
+modelx2 <- glmmTMB(value ~ group, data=df3)
+summary(modelx2)
+Anova(modelx2)
+
+x2 <- modelx2 <- (3/.6666667)^2
+x2
+# p-value 
+pchisq(x2, 2, lower.tail=F)
+
 # Load rmodel# Load required package
 if (!require(stats4)) install.packages("stats4", dependencies = TRUE)
 library(stats4)

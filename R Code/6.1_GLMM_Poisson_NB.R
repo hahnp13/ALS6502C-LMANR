@@ -33,6 +33,7 @@ head(d1) ## view data set
 ggplot(d1, aes(x=spray, y=y, fill=lead)) + geom_violin(scale="width", adjust=2) + 
   geom_point(position = position_jitterdodge(jitter.width=.5, jitter.height=.1, dodge.width = 1), alpha=.1)+
   facet_wrap(~block)
+hist(d1$y)
 
 ## 1. construct poisson and negative binomial models ####
 #### Models r1 and r2 were used previously in module 3.3
@@ -44,11 +45,12 @@ r2 <- glmmTMB(y ~ spray * lead, data=d1, family="nbinom2")
 plot(simulateResiduals(r1)) ## DHARMa package simulated residuals
 hist(simulateResiduals(r1)) ## histogram should be flat
 check_overdispersion(r1) # overdispersion ratio calculator from performance
+check_model(r1) # performance package check
 
 plot(simulateResiduals(r2)) ## DHARMa package simulated residuals
 hist(simulateResiduals(r2)) ## histogram should be flat
 check_overdispersion(r2) # overdispersion ratio calculator from performance
-
+check_model(r2) # performance package check
 
 # QUESTIONS: What's next? Any aspects of the experimental design missing from the model? ####
 ####            Construct a model that includes any missing factors.
@@ -66,6 +68,7 @@ r3 <- glmmTMB(y ~ spray * lead + (1|block), data=d1, family="nbinom2")   ### nb 
 plot(simulateResiduals(r3)) ## DHARMa package simulated residuals
 hist(simulateResiduals(r3)) ## histogram should be flat
 check_overdispersion(r3) # overdispersion ratio calculator from performance
+check_model(r3) # performance package check
 
 ## 3. Check random effects
 summary(r3)
@@ -73,6 +76,7 @@ summary(r3)
 library(broom.mixed)
 glance(r3)
 tidy(r3, effects="ran_pars") ## same as stdev in summary()
+
 r3_blups <- tidy(r3, effects="ran_vals") ## same as stdev in summary()
 hist(r3_blups$estimate, breaks=seq(-.8,.8,l=6), main="Hist of RE blups")
 
@@ -81,6 +85,7 @@ hist(r3_blups$estimate, breaks=seq(-.8,.8,l=6), main="Hist of RE blups")
 ## If the random effect was part of your experimental design you don't need to do this (just keep block in!)
 model.sel(r2,r3) ## from MuMIn
 AICtab(r1,r2,r3,base=T,logLik=T,weights=T)    ## from bbmle
+
 
 ## 4. Check significance ####
 Anova(r3)
