@@ -6,6 +6,7 @@ library(DHARMa)
 library(glmmTMB)
 library(MuMIn)
 library(performance)
+library(easystats)
 
 # wheatley carrot infection by carrot fly larvae ####
 data("jansen.apple")
@@ -31,25 +32,20 @@ mod1 <- glmmTMB(cbind(y,n-y) ~ inoculum * gen + (1|block), data=dat1, family='bi
 summary(mod1) # note the block effect is singular -- probably could remove block but we'll keep it in for practice
 
 ### examine residuals
-plot(simulateResiduals(mod1))
+simulateResiduals(mod1, plot=T)
+check_model(mod1)   # this now uses the package 'easystats'
 check_overdispersion(mod1)
-
-## construct model accounting for overdispersion ####
-dat1$obs <- 1:length(dat1$y) ## make obs variable
 
 ## beta-binomial model has "build-in" overdispersion parameter
 mod2 <- glmmTMB(cbind(y,n-y) ~ inoculum * gen  + (1|block), data=dat1, family='betabinomial')
 summary(mod2) 
 
-## binomial model with OLRE to account for overdisperions
-mod2a <- glmmTMB(cbind(y,n-y) ~ inoculum * gen + (1|block) + (1|obs) , data=dat1, family='binomial')
-summary(mod2a)
-
 ## which is better?
-AIC(mod1, mod2, mod2a)
+AIC(mod1, mod2)
 
 ### examine residuals
 plot(simulateResiduals(mod2))
+check_model(mod2)
 check_overdispersion(mod2) ## check_overdispersion can be misleading bc the model already has an OD parameter
 
 AIC(mod1,mod2,mod2a)
@@ -69,3 +65,4 @@ emmeans(mod1, pairwise ~ inoculum, type="response")
 ### r2
 r.squaredGLMM(mod2)
 r2(mod2)
+

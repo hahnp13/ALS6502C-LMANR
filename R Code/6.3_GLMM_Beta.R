@@ -7,6 +7,7 @@ library(glmmTMB)
 library(viridis)
 library(performance)
 library(ggeffects)
+library(easystats) ## new package, may need to install (it has features that used to be in performance package)
 
 # load data and filter out species not used in analysis ####
 s1 <-read_csv("Palmer_percentseedloss.csv") %>% 
@@ -28,41 +29,81 @@ mod1 <- glmmTMB(Seed_loss_percent ~ SeedSize_mg_log10 + (1|Species) + (1|Site),
                 family=ordbeta(link="logit"), data=s1)
 
 ## beta_family ####
-mod1a <- glmmTMB(SeedDmg ~ SeedSize_mg_log10 + (1|Species) + (1|Site), 
+mod2 <- glmmTMB(SeedDmg ~ SeedSize_mg_log10 + (1|Species) + (1|Site), 
                 family=beta_family(link="logit"), data=s1)
 
 ## logit-transformation ### simplest mathematically, so sometimes best to use logit-transform
-mod1b <- glmmTMB(logit(SeedDmg) ~ SeedSize_mg_log10 + (1|Species) + (1|Site), 
+mod3 <- glmmTMB(logit(SeedDmg) ~ SeedSize_mg_log10 + (1|Species) + (1|Site), 
                  family=gaussian, data=s1)
 
 ## plot residuals. Note: simulated residuals never look good for beta distribution
-##   There is probably some zero-inflation in the data, but for now we will proceed.
 plot(simulateResiduals(mod1))
-plot(simulateResiduals(mod1a))
-plot(simulateResiduals(mod1b))
+plot(simulateResiduals(mod2))
+plot(simulateResiduals(mod3))
 
-## print summary
-summary(mod1)
-summary(mod1a)
-summary(mod1b)
+check_model(mod1)
+check_model(mod2)
+check_model(mod3)
 
-## print Anova table
-Anova(mod1)
+## Note: can't use AIC to compare these models because the response variable is different and families are different
 
+## Look at coefficients to see how they change between families
+## raw mean
+mean(s1$Seed_loss_percent, na.rm=T)
 ## emmeans
-emmeans(mod1, ~1, type="response") # A little lower than beta_family
-emmeans(mod1a, ~1, type="response") # a little higher than ordbeta
-emmeans(mod1b, ~1, type="response") # much lower than beta distribution; use caution!
+emmeans(mod1, ~1, type="response") # mean for ordbeta; a little lower than raw mean (which is expected with skew)
+emmeans(mod2, ~1, type="response") # almost same as the raw mean
+emmeans(mod3, ~1, type="response") # very low; use caution!
 
 ## emtrends
-emtrends(mod1, var="SeedSize_mg_log10", ~1) # slope a little lower than beta_family
-emtrends(mod1a, var="SeedSize_mg_log10", ~1) # slope a little higher than ordbeta
-emtrends(mod1b, var="SeedSize_mg_log10", ~1) # slope way higher than beta distribution
+emtrends(mod1, var="SeedSize_mg_log10", ~1) # slope for ordbeta model
+emtrends(mod2, var="SeedSize_mg_log10", ~1) # slope beta_family model
+emtrends(mod3, var="SeedSize_mg_log10", ~1) # slope for logit-transformation
+
+# check for zero inflation ####
+
+## ordbeta with zero inflation and ZI modeled by species (see hist on line 20) ####
+mod1a <- glmmTMB(Seed_loss_percent ~ SeedSize_mg_log10 + (1|Species) + (1|Site), zi=~1,
+                 family=ordbeta(link="logit"), data=s1)
+mod1b <- glmmTMB(Seed_loss_percent ~ SeedSize_mg_log10 + (1|Site) , zi=~(1|Species),
+                 family=ordbeta(link="logit"), data=s1)
+mod1c <- glmmTMB(Seed_loss_percent ~ SeedSize_mg_log10 + (1|Site) , zi=~Species,
+                 family=ordbeta(link="logit"), data=s1)
+## Note: we can use AIC to compare the three ordbeta models with different zi terms
+
+AIC(mod1,mod1a, mod1b, mod1c)
+
+plot(simulateResiduals(mod1b))
+check_model(mod1b)
+
+plot(simulateResiduals(mod1c))
+check_model(mod1c)
+
+summary(mod1c)
+
+## ZI ~Species model looks pretty good
+
+## print summary
+summary(mod1c)
+
+
+## print Anova table
+Anova(mod1c)
+
+## look at emmeans/emmtrends
+## raw mean
+mean(s1$Seed_loss_percent, na.rm=T)
+## emmeans
+emmeans(mod1c, ~1, type="response", component="cond") # mean for ordbeta without the ZI component of the model
+emmeans(mod1c, ~Species, type="response", component="zi") # mean for ZI component of the model
+emmeans(mod1c, ~Species, type="response", component="response") # mean overall taking into account both the conditional and ZI components
+
+## emtrends
+emtrends(mod1c, var="SeedSize_mg_log10", ~1) # slope for ordbeta model
 
 ## r2
-r2(mod1) # problems R2c
-r2(mod1a) # problems with beta distribution
-r2(mod1b) # R2 seem reasonable
+r2(mod1c) # problems R2c
+
 
 # Make simple plot ####
 ### geom_smooth line is fit using all 1665 observations (a lot!)

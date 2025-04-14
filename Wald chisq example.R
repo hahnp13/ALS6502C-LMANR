@@ -1,6 +1,7 @@
 library(car)
 library(glmmTMB)
 library(tidyverse)
+library(emmeans)
 
 # Create a data frame
 df <- data.frame(
@@ -87,3 +88,101 @@ mle_sigma <- mle_results$par[2]
 cat("MLE Estimates:\n")
 cat("Mean (mu):", mle_mu, "\n")
 cat("Standard Deviation (sigma):", mle_sigma, "\n")
+
+# two group sample size comparison ####
+
+# Set seed for reproducibility
+set.seed(11)
+
+# Simulate data
+n <- 150  # number of observations per group
+n1 <- 1000  # number of observations per group
+group <- rep(c("Control", "Treatment"), each = n)
+value <- c(rnorm(n, mean = 5, sd = 1),   # Control group
+           rnorm(n, mean = 6, sd = 1))   # Treatment group
+
+# Put into a data frame
+data <- data.frame(group = factor(group), value = value)
+
+group1 <- rep(c("Control", "Treatment"), each = n1)
+value1 <- c(rnorm(n1, mean = 5, sd = 1),   # Control group
+           rnorm(n1, mean = 6, sd = 1))   # Treatment group
+
+# Put into a data frame
+data1 <- data.frame(group1 = factor(group1), value1 = value1)
+
+ggplot(data, aes(x=group, y=value))+
+  geom_boxplot()+
+  geom_jitter(height=0, width=.2)+
+  theme_bw(base_size = 20)
+
+ggplot(data1, aes(x=group1, y=value1))+
+  geom_boxplot()+
+  geom_jitter(height=0, width=.2)+
+  theme_bw(base_size = 20)
+
+# Fit linear model
+model <- lm(value ~ group, data = data)
+summary(model)
+
+model1 <- lm(value1 ~ group1, data = data1)
+summary(model1)
+
+m <- glmmTMB(value ~ group, data = data)
+summary(m)
+Anova(m)
+em_m <- emmeans(m, ~group)
+eff_size(em_m, sigma = sigma(m), edf = df.residual(m))
+
+
+m1 <- glmmTMB(value1 ~ group1, data = data1)
+summary(m1)
+Anova(m1)
+em_m1 <- emmeans(m1, ~group1)
+eff_size(em_m1, sigma = sigma(m1), edf = df.residual(m1))
+
+# regression
+# Set seed for reproducibility
+set.seed(123)
+
+# Generate independent variable x
+x <- seq(-10, 10, length.out = 100)
+
+# Define true quadratic relationship with some coefficients
+y_true <- 3 + 2 * x - 0.5 * x^2
+
+# Add random noise to simulate real-world data
+noise <- rnorm(length(x), mean = 0, sd = 5)
+y <- y_true + noise
+
+# Create a data frame
+data <- data.frame(x = x, y = y)
+
+# Plot the data
+plot(data$x, data$y, main = "Simulated Quadratic Data", xlab = "x", ylab = "y", pch = 19, col = "blue")
+
+# Generate independent variable x
+x1 <- seq(-10, 10, length.out = 1000)
+
+# Define true quadratic relationship with some coefficients
+y_true1 <- 3 + 2 * x1 - 0.5 * x1^2
+
+# Add random noise to simulate real-world data
+noise1 <- rnorm(length(x1), mean = 0, sd = 5)
+y1 <- y_true1 + noise1
+
+# Create a data frame
+data1 <- data.frame(x1 = x1, y1 = y1)
+
+# Plot the data
+plot(data1$x1, data1$y1, main = "Simulated Quadratic Data", xlab = "x", ylab = "y", pch = 19, col = "blue")
+
+
+r1 <- lm(y ~ x + I(x^2), data=data)
+summary(r1)
+r2 <- lm(y1 ~ x1 + I(x1^2), data=data1)
+summary(r2)
+
+r1emt <- emtrends(r1, ~1, var="x")
+eff_size(r1emt, sigma=sigma(r1), edf=df.residual(r1))
+
