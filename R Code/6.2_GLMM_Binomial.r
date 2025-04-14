@@ -48,8 +48,6 @@ plot(simulateResiduals(mod2))
 check_model(mod2)
 check_overdispersion(mod2) ## check_overdispersion can be misleading bc the model already has an OD parameter
 
-AIC(mod1,mod2,mod2a)
-anova(mod1,mod2,mod2a)
 
 ### examine summary
 summary(mod2)
@@ -58,8 +56,6 @@ summary(mod2)
 Anova(mod2)
 
 ### examine means
-emmeans(mod1, pairwise ~ inoculum | gen, type="response")
-
 emmeans(mod1, pairwise ~ inoculum, type="response")
 
 ### r2

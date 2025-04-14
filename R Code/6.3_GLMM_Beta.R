@@ -10,7 +10,7 @@ library(ggeffects)
 library(easystats) ## new package, may need to install (it has features that used to be in performance package)
 
 # load data and filter out species not used in analysis ####
-s1 <-read_csv("Palmer_percentseedloss.csv") %>% 
+s1 <-read_csv("R Code/Palmer_percentseedloss.csv") %>% 
   filter(Species!='ANMI',Species!='ARLU',Species!='CAFI',Species!='ERPU',Species!='FECA',Species!='FEID',Species!='LIRU')
 head(s1)
 summary(s1)
@@ -19,16 +19,16 @@ summary(s1)
 ggplot(s1, aes(x=Seed_loss_percent)) + geom_histogram() + theme_bw(base_size = 24)
 ggplot(s1, aes(x=Seed_loss_percent)) + geom_histogram() + facet_wrap(~Species)
 
-## provide a small transformation to the data to get rid of zeros and 1's for the beta distribution (or logit-transformation)
-s1$SeedDmg <- (s1$Seed_loss_percent*(length(s1$Seed_loss_percent)-1)+.5)/length(s1$Seed_loss_percent)
 
 # construct models ####
-
 ## ordbeta ####
 mod1 <- glmmTMB(Seed_loss_percent ~ SeedSize_mg_log10 + (1|Species) + (1|Site), 
                 family=ordbeta(link="logit"), data=s1)
 
 ## beta_family ####
+## provide a small transformation to the data to get rid of zeros and 1's for the beta distribution (or logit-transformation)
+s1$SeedDmg <- (s1$Seed_loss_percent*(length(s1$Seed_loss_percent)-1)+.5)/length(s1$Seed_loss_percent)
+
 mod2 <- glmmTMB(SeedDmg ~ SeedSize_mg_log10 + (1|Species) + (1|Site), 
                 family=beta_family(link="logit"), data=s1)
 
@@ -59,6 +59,9 @@ emmeans(mod3, ~1, type="response") # very low; use caution!
 emtrends(mod1, var="SeedSize_mg_log10", ~1) # slope for ordbeta model
 emtrends(mod2, var="SeedSize_mg_log10", ~1) # slope beta_family model
 emtrends(mod3, var="SeedSize_mg_log10", ~1) # slope for logit-transformation
+
+summary(mod1)
+r2(mod1)
 
 # check for zero inflation ####
 
