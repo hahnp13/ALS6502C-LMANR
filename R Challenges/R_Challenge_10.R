@@ -8,7 +8,7 @@ library(survminer) # recommended for visualizing survival curves
 library(ggsurvfit) # alternative package for plotting time-to-event endpoints
 
 # Load and investigate Cockroach dataset 
-dat <- read.csv("Survival Lecture/roaches_insecticides.csv")
+dat <- read.csv("R Challenges/roaches_insecticides.csv")
 
 dim(dat) # returns the dimensions of the data frame
 head(dat) # returns the first few rows from the data
