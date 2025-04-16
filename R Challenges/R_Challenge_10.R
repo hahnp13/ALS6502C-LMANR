@@ -1,53 +1,64 @@
-### R Challenge 10 ###
+#### R Challenge 10 
 
-### CHOOSE ONE OF THE PROBLEM SETS BELOW 1. OR 2.
+# Load libraries
+# remember to install libraries if you have not used them before!
+library(tidyverse) # includes ggplot2, for data visualisation. dplyr, for data manipulation.
+library(survival)  # core survival analysis function
+library(survminer) # recommended for visualizing survival curves
+library(ggsurvfit) # alternative package for plotting time-to-event endpoints
 
-#################################################################################################
-#### 1. problem set w/ real data (Rivkin et al. 2018 Am J Bot) #####
-#### herbivory data collected on 43 populations of an aquatic plant across a latitudinal gradient in Canada
-#### At each population, many plants (~5-15) were examined for herbivory damage
-#### Some additional covariates were recorded, such as Competition around the plant (1-3 from less to more) and plant height (cm)
+# Load and investigate Cockroach dataset 
+dat <- read.csv("Survival Lecture/roaches_insecticides.csv")
 
-### Q: Does herbivory increase towards the equator?
-####    How do residuals look? Any way to improve them?
+dim(dat) # returns the dimensions of the data frame
+head(dat) # returns the first few rows from the data
+str(dat)
 
-d1 <-read_csv("ajb21098-sup-0002-appendixs2.csv")
-head(d1)
-hist(d1$LeafDamage)
+# Part 1 ----
+## Survival of Cockroaches to three insecticide applications ##
 
-## removes 0's and 1's (see Smithson & Verkuilen 2006 or Douma & Weedon 2018)
-d1$LeafDamage1 <- (d1$LeafDamage*(length(d1$LeafDamage)-1)+.5)/length(d1$LeafDamage)
+# 1. Create a survival object using Surv()
+# hint: pay attention to your variable names! Surv([time variable], [event variable])
 
-ggplot(d1 , aes(x=Latitude, y=LeafDamage1)) + geom_point() +
-  geom_smooth(method='glm', method.args=list(family="beta_family"), formula = y~x)
+# 2a. Create KM survival curves using the function survfit()
+# 2b. Create a plot using ggsurvplot()
+# Does the application of insecticide result in increased mortality?
+
+# Part 2 ----
+# Investigate the survival of Cockroaches to three insecticide applications (A,B,C)
+# Complete Steps 3-5 to answer the following questions:
+# Q1: Are there differences in survival probability among the application groups?
+# Q2: Does weight of the insect influence their survival probability?
+# Hint: Because we want to know if the different application impact the hazard (and not if they are resulting in increased hazard compared to the control), we can remove the control group from our dataset:
+dat2 <- dat %>% filter(group != "Control")
+
+# 3. Fit a Cox proportional hazards regression model.
+# Hint: Specify the model to include "weight" and "group", as well as the interaction between them.
+# Which terms are important in the model?
+# use anova() to help you select the most appropriate model.
+
+# 4. Check model assumptions
+# hint: Test the PH assumptions using cox.zph()
+# If your final model includes weight, you also need to check for linearity.
+
+# 5. Interpretation
+# How do the hazards of the different groups compare? Try to put the results into words.
+# Are groups B and C different? Hint: you need to change the reference group.
+
+# Part 3 ----
+# 6. Visualization
+# Adjusted Survival Curves
+# you can use the ggadjustedcurves() function from the survminer package:
 
 
-lm1 <- glmmTMB(LeafDamage ~ Latitude +  (1|Population), family="beta_family", data=d1)
-summary(lm1)
 
-plot(simulateResiduals(lm1))
 
-#################################################################################################
-#### 2. problem set w/ real data (Rivkin et al. 2018 Am J Bot) #####
-####    Rats dataset. (use only females). Half treated with drug and untreated and then checked for tumor.
-####    Does the drug reduce probability of developing tumor? AFter 50 days? After 100 days?
 
-library(survival)
-rats <- rats %>% filter(sex=="f")
-?rats
-head(rats)
 
-ggplot(rats , aes(x=time, y=status)) + geom_point() +
-  geom_smooth(method='glm', method.args=list(family="binomial"), formula = y~x) + 
-  facet_wrap(~rx)
 
-rat1 <- glmmTMB(status ~ as.factor(rx) * time + (1|litter), family="binomial", data=rats)
+# Optional: compare adjusted survival curves to KM survival curves
+# Hint: remove control from the KM surival object
+# load library(patchwork) for easy assembly of plots
+library(patchwork)
 
-plot(simulateResiduals(rat1))
 
-Anova(rat1)
-summary(rat1)
-
-emmeans(rat1, pairwise ~ rx, type='response', at=list(time=50))
-emmeans(rat1, pairwise ~ rx, type='response', at=list(time=100))
-emmeans(rat1, pairwise ~ rx, time=50)
