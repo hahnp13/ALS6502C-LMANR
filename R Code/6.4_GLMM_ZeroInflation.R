@@ -44,6 +44,12 @@ plot(simulateResiduals(mod4))
 boot::inv.logit(-4.4000)
 boot::inv.logit(-4.4000+4.2831)
 
+## hurdle model w/ negative binomial
+### Note: this model is almost identical to the ZI model above. I would use mod4
+mod5 <- glmmTMB(roots ~ photo * bap , data=dat1, family='truncated_nbinom2', zi=~photo)
+summary(mod5)
+
+plot(simulateResiduals(mod5))
 
 ### check with AIC
-AIC(mod1,mod2,mod3,mod4)
+AIC(mod1,mod2,mod3,mod4,mod5)
