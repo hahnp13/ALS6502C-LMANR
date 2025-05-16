@@ -88,11 +88,17 @@ ggplot(d1, aes(x=spray, y=y, fill=lead)) + geom_violin(scale="width", adjust=2) 
 
 
 # STEP 1. construct poisson and negative binomial models ####
-
-r1 <- glmmTMB(y ~ spray * lead , data=d1, family="poisson")
-r2 <- glmmTMB(y ~ spray * lead , data=d1, family="nbinom2")
+r0 <- glmmTMB(log(y+1) ~ spray * lead , data=d1, family="gaussian") # log-transformed model, bad bad bad
+r1 <- glmmTMB(y ~ spray * lead , data=d1, family="poisson") # poisson model
+r2 <- glmmTMB(y ~ spray * lead , data=d1, family="nbinom2") # negative binomial model
 
 # STEP 2. Examine residuals and test for overdispersion ####
+plot(simulateResiduals(r0)) ## DHARMa package simulated residuals
+hist(simulateResiduals(r0)) ## histogram should be flat
+check_overdispersion(r0) # overdispersion ratio calculator from performance
+check_model(r0) # performance package check
+
+
 plot(simulateResiduals(r1)) ## DHARMa package simulated residuals
 hist(simulateResiduals(r1)) ## histogram should be flat
 check_overdispersion(r1) # overdispersion ratio calculator from performance
