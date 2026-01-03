@@ -29,8 +29,8 @@ hist(d$count) ## histogram of count data. Can we use to check assumption of norm
 ## check and set priors ####
 get_prior(bf(count ~ spray), data=d)
 
-priors_bm2 <- c(prior(normal(12,5), class="Intercept"),
-                prior(normal(0,10), class="b"))
+priors_bm2 <- c(prior(normal(10,5), class="Intercept"),
+                prior(normal(0,15), class="b"))
 
 bm2 <- brm(count~spray , data=d,
            iter=2000, warmup=1000,
@@ -75,7 +75,7 @@ bm2_null <- brm(count~1 , data=d,
 
 
 ## bayes factor will calculate an evidence ratio
-bayes_factor(bm2, bm2_null) ## Its WAY over 10 so massive evidence of a 'spray' effect
+bayes_factor(bm2, bm2_null) ## Its WAY over 10 so massive evidence of a 'spray' effect (might take a while to run)
 
 
 ## or you can use loo (leave one out comparisons), which is similar to AIC model selection that we will talk briefly about in Module 3.3

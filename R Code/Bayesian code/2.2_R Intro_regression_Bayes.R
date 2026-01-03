@@ -1,4 +1,4 @@
-# EXAMPLE OF LINEAR REGRESSION IN R #############################################
+# EXAMPLE OF BAYESIAN LINEAR REGRESSION IN R #############################################
 library(tidyverse)
 library(car)
 library(brms)
@@ -13,8 +13,9 @@ r1 <- as.data.frame(cbind(temp,mass)) ### run lines 7-10 to generate some fake d
 
 head(r1) ## temp is rearing temperature (C), mass is the mass of adults (mg)
 
-# STEP 0. Examine plot data ####
+# STEP 0. Examine and plot data ####
 summary(r1)
+
 hist(r1$mass)
 ggplot(r1, aes(x=temp, y=mass))+
   geom_point(size=3)+
@@ -24,20 +25,27 @@ ggplot(r1, aes(x=temp, y=mass))+
 ## construct a linear model to estimate the average adult mass per degree C of temperature increase
 ## for a continuous variable (temp in degree C), we are interested in estimating the slope between age and circumference
 ## Using brms, we simply use the 'brm' function exactly like we would use glmmTMB() or lm() etc.
+
 ## There are lots of options we can add, which we will need to do for more complicated models.
-## But, we do need to get some (wide) priors
+## But, we do need to get some (wide) priors.
+## This simple model would work just fine with the default priors, but its good practice to set priors yourself 
+##  and with this simple model, the priors are easy to set.
+## Setting priors also helps you understand the parameters, so extra learning bonus.
 
 ## first check default priors
 get_prior(bf(mass~temp), data=r1)
 
-## set priors for the two parameters the model will estimate, the intercept and slope (it also estimates the variance or sigma, but is ok)
-priors <- c(prior(normal(100,50), class="Intercept"),
+## set priors for the two parameters the model will estimate, the intercept and slope (it also estimates the standard deviation or sigma, but the default ok)
+priors <- c(prior(normal(0,50), class="Intercept"),
             prior(normal(0,10), class="b"))
 
+
+### now setup the model in brm ####
+## if you have any issues, you can hashtag-out everything except the first line and it will run with the defaults
 bm1 <- brm(mass~temp, data=r1,
            iter=2000, warmup=1000, chains = 4,
            prior = priors,
-           save_pars = ('all'),
+           save_pars = save_pars(all = TRUE),
            sample_prior = "yes",
            backend = "cmdstanr"
            )
