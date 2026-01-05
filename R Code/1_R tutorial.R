@@ -45,6 +45,7 @@ hist(dataset1, breaks=30)       # looks weird
 
 -##############################################-
 # LOAD Andersen's IRIS DATA #################
+## Data on floral traits for 3 iris species were collected by the botanist Edgar Anderson in 1935
 
 data(iris) # load data (already exists in base R)
 

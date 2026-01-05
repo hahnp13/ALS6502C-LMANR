@@ -2,6 +2,7 @@
 library(tidyverse)
 library(car)
 library(glmmTMB)
+library(easystats)
 library(broom.mixed)
 library(MuMIn)
 
@@ -24,13 +25,11 @@ ggplot(r1, aes(x=temp, y=mass))+geom_point(size=2)+theme_bw(base_size=20)
 lm1 <- glmmTMB(mass~temp, data=r1)
 
 
-# STEP 2. check assumptions of model by examining residuals ####
-hist(resid(lm1)) ## residuals should be normally distributed
-plot(resid(lm1)~fitted(lm1))  ## residuals should be evenly dispersed around 0 across the range of x's
-abline(h=0)                             # funnel shapes or curvature is bad
+# STEP 2. check assumptions of model by examining residuals (mostly from easystats package) ####
+check_model(lm1)
+check_normality(lm1) # conducts a shapiro-wilks test, if you want a p-value (not always useful)
 
-qqPlot(resid(lm1))  ## calls from car package, residuals should line up pretty closely to the blue line
-## points that drift from line may be outliers
+hist(resid(lm1)) ## can extract residuals manually and plot, should be normally distributed
 
 ## problems with residuals indicate assumptions of the linear model are violated and may cause problems with coefficients and p-values
 ## transforming the data may help
@@ -44,20 +43,19 @@ summary(lm1)        ## summary() will provide the model coefficients (ie. the "g
 # don't really need to look at ANOVA table or use emmeans for this type of analysis, everything of interest is in summary
 
 ### other ways to get model coefficients ####
-fixef(lm1)   ## look at model coefficients
+model_parameters(lm1)   ## look at model coefficients with confidence intervals
 
-### the broom.mixed package has a few useful functions for printing off model components
-tidy(lm1, conf.int=TRUE)    ## look at model coefficients, allows a way to extract coefficients for using in other things.
-# tidy() function is usually more useful than summary() because it prints off the coefficients in a more convient way.
+estimate_slopes(lm1)  ## look at just the slope (the interesting parameter)
 
-glance(lm1) ## glance() can be used to look at other components of the model
-augment(lm1) ## augment will print off the fitted vales and residuals
+estimate_prediction(lm1) ## this will print off the fitted vales and residuals
+
 
 r2(lm1) ## calculate R2 (use R2, not adj. R2)
 
 
 # STEP 4. Examine Anova Table to check significance ####
-Anova(lm1, type=2)  ## produces an ANOVA table
+Anova(lm1)  ## produces an ANOVA table
+model_parameters(Anova(lm1))  ## same as above but tidy output from easystats
 # tests the null hypothesis that the slope is different than zero
 # not super useful for regressions, because we see similar info in the summary() but can look at
 # this will be much for helpful for categorical variables and interactions later in the course

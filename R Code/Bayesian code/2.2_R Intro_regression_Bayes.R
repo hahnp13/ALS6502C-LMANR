@@ -44,10 +44,10 @@ priors <- c(prior(normal(0,50), class="Intercept"),
 ## if you have any issues, you can hashtag-out everything except the first line and it will run with the defaults
 bm1 <- brm(mass~temp, data=r1,
            iter=2000, warmup=1000, chains = 4,
-           prior = priors,
-           save_pars = save_pars(all = TRUE),
-           sample_prior = "yes",
-           backend = "cmdstanr"
+           #prior = priors,
+           #save_pars = save_pars(all = TRUE),
+           #sample_prior = "yes",
+           #backend = "cmdstanr"
            )
 
 
@@ -73,6 +73,8 @@ plot(bm1)  ## histograms show the posterior draws for each parameter estimated b
            ## note the intercept chains are centered on ~10 and the temp slope is ~4.5 (same as the histos)
 
 
+## now we will use a more comprehensive model check from the easystats package
+check_model(bm1)
 
 ## STEP 3: Look at model coefficients ####
 summary(bm1)        ## summary() will provide the model coefficients (ie. the "guts" of the model)
@@ -85,28 +87,22 @@ summary(bm1)        ## summary() will provide the model coefficients (ie. the "g
 
 
 ### other ways to get model coefficients ####
-fixef(bm1)   ## look at model coefficients
+model_parameters(bm1)   ## look at model coefficients
 
-### the broom.mixed package has a few useful functions for printing off model components
-tidy(bm1, conf.int=TRUE)    ## look at model coefficients, allows a way to extract coefficients for using in other things.
-# tidy() function is usually more useful than summary() because the structure is very similar regardless of what function you use to model, brm, glmmTMB, lm, etc.
-
-glance(bm1) ## glance() can be used to look at other components of the model, not super helpful here
-augment(bm1) ## augment will print off the fitted vales and residuals
-
-emmeans::emtrends(bm1, var="temp", ~1)
-
+estimate_prediction(bm1) ## this will print off the fitted vales and residuals
 
 
 # STEP 4. Check significance ####
-hypothesis(bm1, "temp > 0")
-
+hypothesis(bm1, "temp > 0") ## model_parameters above is similar, can also use estimate_slopes()
+estimate_slopes(bm1)
 
 # check R2 for fit
 r2(bm1) ## calculate R2
 
 
-## quick plot -- almost identical to  ####
+## quick plot ####
 plot(conditional_effects(bm1), points=T)
+
+plot(estimate_relation(bm1))
 ## later we will learn how to make customized plots
 

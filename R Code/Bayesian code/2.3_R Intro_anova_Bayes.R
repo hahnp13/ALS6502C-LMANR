@@ -5,9 +5,10 @@ library(emmeans)     ### load emmeans package, which is helpful for getting mean
 library(viridis)     ### load viridis package for adding colors to plots
 library(brms)
 library(cmdstanr)
-library(broom.mixed)
 library(easystats)
 library(loo)
+
+options(modelbased_backend = "emmeans") ## set easystats backend to "emmeans" by default
 
 # EXAMPLE FOR CONDUCTING A ONE-WAY ANOVA IN R using brms #################################
 
@@ -35,15 +36,18 @@ priors_bm2 <- c(prior(normal(10,5), class="Intercept"),
 bm2 <- brm(count~spray , data=d,
            iter=2000, warmup=1000,
            prior = priors_bm2,
-           save_pars = save_pars(all = TRUE),
-           sample_prior = "yes",
-           backend = "cmdstanr")  
+           #save_pars = save_pars(all = TRUE),
+           #sample_prior = "yes",
+           #backend = "cmdstanr"
+           )  
 ## brm is a general function that conducts a linear model using the program STAN
 # all the "calculations" are saved in an object we called 'bm2'
 
 
 # STEP 2. check assumptions of model by examining residuals ####
 pp_check(bm2) ## looks reasonable, could be better (we will return to this example later in class)
+
+check_model(bm2) ## this provides a more thorough check
 
 
 ## next we will plot density (histograms) and trace (chains) plots of the MCMC draws
@@ -58,8 +62,8 @@ summary(bm2)   ## summary() will provide the model coefficients (ie. the "guts" 
 # the coefficients allow you rebuild the means from the linear model equation y~u+Bi
 # rebuilding the model from the coefficients is not super helpful with multiple categories/groups and the p-values aren't very meaningful
 
-## you can use tidy(), glipse(), etc but again this step isn't all that useful. Check summary to make sure it looks good and move on
-
+## you can use other ways to look at the parameters but again this step isn't all that useful. Check summary to make sure it looks good and move on
+model_parameters(bm2) 
 
 # STEP 4. Check "significance" with an omnibus test ####
 
@@ -69,13 +73,14 @@ summary(bm2)   ## summary() will provide the model coefficients (ie. the "guts" 
 bm2_null <- brm(count~1 , data=d,
            iter=2000, warmup=1000,
            prior = prior(normal(12,5), class="Intercept"), ## only parameter is intercept
-           save_pars = save_pars(all = TRUE),
-           sample_prior = "yes",
-           backend = "cmdstanr")  
+           #save_pars = save_pars(all = TRUE),
+           #sample_prior = "yes",
+           #backend = "cmdstanr"
+           )  
 
 
-## bayes factor will calculate an evidence ratio
-bayes_factor(bm2, bm2_null) ## Its WAY over 10 so massive evidence of a 'spray' effect (might take a while to run)
+## compare models, focus on the LOOIC (weights) column (lower is better)
+compare_performance(bm2, bm2_null) ## bm2 is way better, has > 99.9% support
 
 
 ## or you can use loo (leave one out comparisons), which is similar to AIC model selection that we will talk briefly about in Module 3.3
@@ -85,11 +90,13 @@ loo_compare(loo::loo(bm2_null), loo::loo(bm2))
 
 
 # STEP 5. examine group means ####
-emmeans(bm2, ~spray) ## emmeans::emmmeans will rebuild the model for you
+estimate_means(bm2, ~spray) ## emmeans will rebuild the model for you
+
 # this code will print off the means and credible intervals for each treatment group
+# ignore the pd here, it tests the mean compared to zero which isn't really relevant
 
 # STEP 6. pairwise comparisons of group means ####
-emmeans(bm2, pairwise~spray)  ## adding 'pairwise' will conduct pairwise contrasts -- ie. compare each group mean to the others
+estimate_contrasts(bm2)  ## conduct pairwise contrasts -- ie. compare each group mean to the others
 ## comparisons where the credible intervals don't overlap zero are considered important (or "significant")
 ## this is a quick way to compare the means, not necassarily the best, but passable.
 
@@ -109,9 +116,10 @@ contrast(emm, method = "trt.vs.ctrl", ref = "F")
 bm2_noInt <- brm(count~ 0 + spray , data=d,
            iter=2000, warmup=1000,
            prior = prior(normal(10,10), class="b"), # adjust prior because we have no intercept and only 'b' coefficients
-           save_pars = save_pars(all = TRUE),
-           sample_prior = "yes",
-           backend = "cmdstanr")  
+           #save_pars = save_pars(all = TRUE),
+           #sample_prior = "yes",
+           #backend = "cmdstanr"
+           )  
 
 pp_check(bm2_noInt) # just check
 plot(bm2_noInt) # just check
@@ -126,21 +134,22 @@ hypothesis(bm2_noInt, bm2_hyp)
 # can use bayestestR package to do more sophisticated comparisons
 
 # FINAL STEP: Plot data with means ####
-## Plot data and add means plus SE from your emmeans. Can change colors, if you'd like.
-bem50 <- emmeans(bm2, ~spray, level=.5) %>% as.data.frame()
-bem80 <- emmeans(bm2, ~spray, level=.8) %>% as.data.frame()
-bem95 <- emmeans(bm2, ~spray, level=.95) %>% as.data.frame() # probably can use plot the 95% CI
+## first extract means with 50%, 80%, and 95% credible intervals for plotting error bars
+bem50 <- estimate_means(bm2, ~spray, ci=.5) %>% as_tibble()
+bem80 <- estimate_means(bm2, ~spray, ci=.8) %>% as_tibble()
+bem95 <- estimate_means(bm2, ~spray, ci=.95) %>% as_tibble() # probably can use plot the 95% CI
 
+## Plot data and add means plus SE from your emmeans. Can change colors, if you'd like.
 ggplot() + 
   geom_boxplot(data=d, aes(x=spray,y=count), outlier.shape = NA) + 
   geom_jitter(data=d, aes(x=spray,y=count), height=0,width=.1, size=2) + 
-  geom_pointrange(data=bem50, aes(x=spray, y=emmean, ymin=lower.HPD, ymax=upper.HPD),
+  geom_pointrange(data=bem50, aes(x=spray, y=Mean, ymin=CI_low, ymax=CI_high),
                   color="purple", size=1.25, linewidth=3) + ##geom_errorbar() call also be used to draw error bars
-  geom_pointrange(data=bem80, aes(x=spray, y=emmean, ymin=lower.HPD, ymax=upper.HPD),
+  geom_pointrange(data=bem80, aes(x=spray, y=Mean, ymin=CI_low, ymax=CI_high),
                   color="purple", size=1.25, linewidth=2) + ##geom_errorbar() call also be used to draw error bars
-  geom_pointrange(data=bem95, aes(x=spray, y=emmean, ymin=lower.HPD, ymax=upper.HPD),
+  geom_pointrange(data=bem95, aes(x=spray, y=Mean, ymin=CI_low, ymax=CI_high),
                   color="purple", size=1.25, linewidth=1) + ##geom_errorbar() call also be used to draw error bars
-  theme_bw(base_size = 14)
+  theme_bw(base_size = 16)
 
 
 
