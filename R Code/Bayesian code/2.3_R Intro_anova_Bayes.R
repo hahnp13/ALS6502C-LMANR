@@ -32,12 +32,11 @@ get_prior(bf(count ~ spray), data=d)
 
 priors_bm2 <- c(prior(normal(10,5), class="Intercept"),
                 prior(normal(0,15), class="b"))
+## we will skip the prior prediction check
 
 bm2 <- brm(count~spray , data=d,
            iter=2000, warmup=1000,
            prior = priors_bm2,
-           #save_pars = save_pars(all = TRUE),
-           #sample_prior = "yes",
            #backend = "cmdstanr"
            )  
 ## brm is a general function that conducts a linear model using the program STAN
@@ -68,6 +67,8 @@ model_parameters(bm2)
 # STEP 4. Check "significance" with an omnibus test ####
 
 # car::Anova doesn't work because we aren't testing significance in the traditional sense
+# also, it is sort of optional in a Bayesian framework, since we aren't really worried about testing significance. Nevertheless, we can do it with this approach:
+
 ## need to make a "null" model that only calculates a single intercept (ie. one grand mean)
 ## then we will compare this null model to the other model that contains 'spray'
 bm2_null <- brm(count~1 , data=d,
@@ -98,10 +99,10 @@ estimate_means(bm2, ~spray) ## emmeans will rebuild the model for you
 # STEP 6. pairwise comparisons of group means ####
 estimate_contrasts(bm2)  ## conduct pairwise contrasts -- ie. compare each group mean to the others
 ## comparisons where the credible intervals don't overlap zero are considered important (or "significant")
-## this is a quick way to compare the means, not necassarily the best, but passable.
+## this is a quick way to compare the means, there are more sophisticated ways to do this, which we will do below, but this is acceptable.
 
 ## a more elaborate, but powerful way using emmeans
-emm <- emmeans(bm2, ~spray) # extract means
+emm <- emmeans(bm2, ~spray) # extract means, you could use estimate_means() here as well
 emm_pw <- pairs(emm)  # extract pairwise comparisons (same as second table from above)
 
 test(emm_pw, delta = 10) # need to specify how different the means should be, in this case 10 (this value is a little arbitrary)
