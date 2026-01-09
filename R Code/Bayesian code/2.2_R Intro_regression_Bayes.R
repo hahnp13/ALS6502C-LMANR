@@ -36,31 +36,47 @@ ggplot(r1, aes(x=temp, y=mass))+
 get_prior(bf(mass~temp), data=r1)
 
 ## set priors for the two parameters the model will estimate, the intercept and slope (it also estimates the standard deviation or sigma, but the default ok)
-priors <- c(prior(normal(0,50), class="Intercept"),
-            prior(normal(0,10), class="b"))
+mean(r1$mass)
+
+priors <- c(prior(normal(100,50), class="Intercept"),
+            prior(normal(0,5), class="b"),
+            prior(student_t(3, 0, 33.3), class="sigma")
+            )
 
 
-### now setup the model in brm ####
+## now setup the model in brm ####
 ## if you have any issues, you can hashtag-out everything except the first line and it will run with the defaults
+
+### Check priors first -- we will do a prior predictive check, just to make sure our priors are reasonable
+## we will look at pp_check to check the posteriors in a bit
+
+prior_check <- brm(mass~temp, data=r1,
+           iter=2000, warmup=1000, chains = 4,
+           prior = priors,
+           sample_prior = "only", # this samples only the priors and generates simulated datasets 
+           #backend = "cmdstanr"
+           )
+
+pp_check(prior_check) # small grey lines are simulated datasets based on priors, they should be roughly within the think black line which is the data
+## for now this is good enough, but there are other checks you can do
+
+## Fit model ####
 bm1 <- brm(mass~temp, data=r1,
            iter=2000, warmup=1000, chains = 4,
-           #prior = priors,
-           #save_pars = save_pars(all = TRUE),
+           prior = priors,
            #sample_prior = "yes",
            #backend = "cmdstanr"
            )
 
-
 # STEP 2. check assumptions of model ####
 
 ## pp_check provides a plot to check how well the model (ie. posterior draws) fit the data
-##   What you will see is the distribution of the posterior draws (10 light blue lines) and the distrbution of the data (dark line)
+##   What you will see is the distribution of the posterior draws (10 light blue lines) and the distribution of the data (dark line)
 ##   basically the light blue lines (model results) should match closely to the data
 # ?bayesplot::pp_check
 
-pp_check(bm1) ## looks reasonable, lots of variation in posterior draws (light blue lines) but are similar to the data (dark line) 
-              ## probably we should use some weakly informed priors, but we will return to that later
-
+pp_check(bm1) ## looks good, some variation in posterior draws (light blue lines) but are similar to the data (dark line) 
+## note, if you use default priors you would see a bit more variation in the draws. For this simple model, that would be ok.
 
 ## next we will plot density (histograms) and trace (chains) plots of the MCMC draws
 plot(bm1)  ## histograms show the posterior draws for each parameter estimated by the model
@@ -72,9 +88,9 @@ plot(bm1)  ## histograms show the posterior draws for each parameter estimated b
            ## what we want to see is that all the chains should overlay on top of each other. If one or more don't overlap, we have divergent chains indicating a problem with the model  
            ## note the intercept chains are centered on ~10 and the temp slope is ~4.5 (same as the histos)
 
-
 ## now we will use a more comprehensive model check from the easystats package
 check_model(bm1)
+
 
 ## STEP 3: Look at model coefficients ####
 summary(bm1)        ## summary() will provide the model coefficients (ie. the "guts" of the model)
@@ -87,7 +103,7 @@ summary(bm1)        ## summary() will provide the model coefficients (ie. the "g
 
 
 ### other ways to get model coefficients ####
-model_parameters(bm1)   ## look at model coefficients
+model_parameters(bm1)   ## look at model coefficients, slightly different than summary() based on how it summarizes the posteriors
 
 estimate_prediction(bm1) ## this will print off the fitted vales and residuals
 
