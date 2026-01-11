@@ -18,7 +18,16 @@ plot(theta_grid, prior_density,
      main = "Prior distribution for theta")
 
 
-# Step 2. Setup likelihood function
+# Step 2. Collect the data (we will simulate data) ####
+set.seed(1)
+
+y <- rnorm(30, mean = 2, sd = 1) %>% round(., 2)
+head(as.data.frame(y))
+summary(y) # look just to get a sense of the values
+hist(y)
+
+
+# Step 3. Estimate likelihood of the data given the range of prior values ####
 likelihood <- function(theta) {
   prod(dnorm(y, mean = theta, sd = 1))
 }
@@ -27,22 +36,9 @@ unnormalized_posterior <- function(theta) {
   likelihood(theta) * dnorm(theta, mean = 0, sd = 5)
 }
 
-
-# Step 3. Collect the data (we will simulate data) 
-set.seed(123)
-
-y <- rnorm(30, mean = 2, sd = 1) %>% round(., 2)
-head(as.data.frame(y))
-summary(y) # look just to get a sense of the values
-hist(y)
-
-
-# Step 4. Estimate likelihood of the data given the range of prior values
-likelihood <- function(theta) {
-  prod(dnorm(y, mean = theta, sd = 1))
-}
-
 likelihood_values <- sapply(theta_grid, likelihood)
+theta_grid[604] # print off maximum likelihood estimate -- it is essentially the mean of the data
+mean(y)
 
 plot(theta_grid, likelihood_values,
      type = "l",
@@ -50,6 +46,8 @@ plot(theta_grid, likelihood_values,
      xlab = expression(theta),
      ylab = "Likelihood",
      main = "Likelihood function for theta")
+#abline(v=theta_grid[605])
+abline(v=mean(y)) ## add line of mean of the data
 
 
 ## Plot prior and likelihood together ####
@@ -69,7 +67,7 @@ legend("topright",
        lty = c(1, 2),
        lwd = 2)
 
-# Step 5. Compute posterior ####
+# Step 4. Compute posterior ####
 unnormalized_posterior <- likelihood_values * prior_density
 posterior_scaled <- unnormalized_posterior / max(unnormalized_posterior)
 
@@ -89,12 +87,13 @@ legend("topright",
        lty = c(1, 2, 3),
        lwd = 2)
 
-# Step 6. Sample from posterior using Metropolis algorithum ####
+# Step 5. Sample from posterior using Metropolis algorithm ####
 
 ## first lets walk through an example of 3-4 iterations ####
 plot(theta_grid, posterior_scaled,
      type = "l",
      lwd = 2,
+     xlim=c(0,3),
      xlab = expression(theta),
      ylab = "Posterior density (scaled)",
      main = "One Metropolis step on the posterior")
@@ -117,9 +116,6 @@ segments(theta_current, 0,
 points(theta_proposal, post_proposal,
        pch = 19, col = "red", cex = 2)
 
-segments(theta_proposal, 0,
-         theta_proposal, post_proposal,
-         col = "red", lty = 2)
 arrows(theta_current, post_current,
        theta_proposal, post_proposal,
        length = 0.1,
@@ -133,46 +129,34 @@ legend("topleft",
 
 ## should we move there??
 
+### Yes! Definately
+points(theta_proposal, post_proposal,
+       pch = 19, col = "green", cex = 2)
+
 ### second iteration
 theta_current <- theta_proposal
 theta_proposal <- theta_current-0.2
 post_current  <- approx(theta_grid, posterior_scaled, xout = theta_current)$y
 post_proposal <- approx(theta_grid, posterior_scaled, xout = theta_proposal)$y
 
-## add current (Starting) point
-points(theta_current, post_current,
-       pch = 19, col = "green", cex = 2)
-
-segments(theta_current, 0,
-         theta_current, post_current,
-         col = "blue", lty = 2)
-
 ## add proposed step
 points(theta_proposal, post_proposal,
        pch = 19, col = "red", cex = 2)
 
-segments(theta_proposal, 0,
-         theta_proposal, post_proposal,
-         col = "red", lty = 2)
 arrows(theta_current, post_current,
        theta_proposal, post_proposal,
        length = 0.1,
        col = "darkgray",
        lwd = 2)
 
+## should we move there?
+## need to do accept/reject step (in this case its a bad move, so it would most likely be rejected)
+
 ### third iteration
 theta_current <- 1.2
 theta_proposal <- theta_current+.6
 post_current  <- approx(theta_grid, posterior_scaled, xout = theta_current)$y
 post_proposal <- approx(theta_grid, posterior_scaled, xout = theta_proposal)$y
-
-## add current (Starting) point
-points(theta_current, post_current,
-       pch = 19, col = "green", cex = 2)
-
-segments(theta_current, 0,
-         theta_current, post_current,
-         col = "blue", lty = 2)
 
 ## add proposed step
 points(theta_proposal, post_proposal,
@@ -199,7 +183,7 @@ plot(c(.6, 1.2, 1.2, 1.8), type = "l",
      main = "Metropolis trace plot")
 
 
-## setup one MCMC chain with the Metropolis algorithum ####
+## setup one MCMC chain with the Metropolis algorithm ####
 # setup likelihoods on log scale
 log_posterior <- function(theta, y) {
   log_lik <- sum(dnorm(y, mean = theta, sd = 1, log = TRUE))
@@ -249,26 +233,18 @@ hist(theta, breaks = 40, probability = TRUE,
      xlab = expression(theta), xlim=c(-0,3),
      main = "Posterior samples from Metropolis")
 
-abline(v = mean(y), col = "blue", lwd = 2)   # MLE
-abline(v = mean(theta), col = "red", lwd = 2)
-
-
-# overlay posterior
-theta_grid <- seq(min(theta), max(theta), length.out = 1000)
-
-likelihood <- function(th) prod(dnorm(y, mean = th, sd = 1))
-prior_density <- dnorm(theta_grid, mean = 0, sd = 5)
-
-unnormalized_posterior <- sapply(theta_grid, likelihood) * prior_density
-posterior_scaled <- unnormalized_posterior / max(unnormalized_posterior)
-lines(theta_grid, posterior_scaled, lwd = 2)
 
 accept_rate <- mean(diff(theta) != 0)
-accept_rate
+accept_rate # should be ~20-50%
 
 
 ## summarize posterior draws ####
 post_draws <- theta[-(1:1000)] ## discard first few samples as "burnin" or warmup because the algorithum needs to explore and learn the posterior distribution
+
+## look at effective sample size (ie. number of "independent" draws)
+posterior::ess_bulk(post_draws) ## we have a total of 4000 posterior draws after discarding the warmups
+## ~1000 ESS is expected with Metropolis because we have many repeating values from the rejected proposals
+
 
 summary_stats <- data.frame(
   Mean   = mean(post_draws),
@@ -288,11 +264,16 @@ hist(post_draws,
      main = "Posterior distribution of theta",
      xlab = expression(theta))
 
-abline(v = post_mean, col = "blue", lwd = 2) # mean
-abline(v = post_median, col = "red", lwd = 2) # median
-abline(v = post_ci_95, col = "darkgray", lwd = 2, lty = 2) # credible intervals
+abline(v = summary_stats$Mean, col = "blue", lwd = 2) # mean
+abline(v = summary_stats$Median, col = "red", lwd = 2) # median
+abline(v = summary_stats$CI_2.5, col = "darkgray", lwd = 2, lty = 2) # credible intervals
+abline(v = summary_stats$CI_97.5, col = "darkgray", lwd = 2, lty = 2) # credible intervals
+# overlay posterior
+lines(theta_grid, posterior_scaled, lwd = 2)
+
 
 ## compare to mean of the "data" we have
+summary_stats ## posteriors
 summary(y)
 mean(y)-(sd(y)/sqrt(20))*1.96 ## lower 95% CONFIDENCE Interval
 mean(y)+(sd(y)/sqrt(20))*1.96 ## upper 95% CONFIDENCE Interval
@@ -311,3 +292,4 @@ summary(bmod) # summary of brms model
 summary_stats # compare to our chain
 
 plot(bmod) # plot posterior draws and trace plot
+pp_check(bmod) # check model fit
