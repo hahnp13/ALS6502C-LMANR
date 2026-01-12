@@ -33,14 +33,14 @@ ggplot(data=iris, aes(x=Sepal.Width, y=Sepal.Length)) +
   geom_point(color='blue') ## compare to line 18. Coloring all points the same color is done through geom_point()
 
 ggplot(data=iris, aes(x=Sepal.Width, y=Sepal.Length, color=Species)) +   #for color-coding by species, it must be called in the aes()                                            
-  geom_point() ## compare to line 22.
+  geom_point() ## compare to line 9
 
 ggplot(data=iris, aes(x=Sepal.Width, y=Sepal.Length, color=Species)) +                                            
   geom_point() + facet_wrap(~Species) ## compare to line 20. facet_wrap() separates into different panels
 
 ### plot Sepal.Length by Sepal.Width only the data for Iris virginica ####
 ggplot(data=iris %>% filter(Species=='virginica'), aes(x=Sepal.Width, y=Sepal.Length)) +                                               
-  geom_point()  ## compare to line 22
+  geom_point()  ## compare to line 14
 
 ### plot data and add trendline ####
 ggplot(data=iris %>% filter(Species=='virginica'), aes(x=Sepal.Width, y=Sepal.Length)) +                                               
