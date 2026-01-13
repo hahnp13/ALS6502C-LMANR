@@ -24,11 +24,15 @@ ggplot(Orange, aes(x= ???, y= ???))+
 # Step 3: Build a linear model (and make plot) to answer the following questions: ####
 ## 1. What circumference should their tree be, on average? (provide an answer to the nearest centimeter)
 
-## 2. Should their tree be fruiting by now?  
 
-## 3. What advice would you give the grower? 
+## 2. Are the model assumptions met?
 
-## 4. Are the model assumptions met?
+
+## 3. Should their tree be fruiting by now?  
+
+
+## 4. What advice would you give the grower? 
+
 
 ## 5. Make a nice figure. Change themes, etc.
 
