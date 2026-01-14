@@ -26,16 +26,22 @@ lm1 <- glmmTMB(mass~temp, data=r1)
 
 
 # STEP 2. check assumptions of model by examining residuals ####
-hist(resid(lm1)) ## residuals should be normally distributed
-plot(resid(lm1)~fitted(lm1))  ## residuals should be evenly dispersed around 0 across the range of x's
-abline(h=0)                             # funnel shapes or curvature is bad
 
-qqPlot(resid(lm1))  ## calls from car package, residuals should line up pretty closely to the blue line
-## points that drift from line may be outliers
-
-## simple way to check from easystats package
+## simple way to check from easystats package ####
 check_model(lm1)
 
+## check residuals with DHARMa package which is great for more complex models
+DHARMa::simulateResiduals(lm1, plot=T) # interpret left plot like QQ, right plot lines (dotted and solid) shoudl match up
+
+## more traditional way to check residuals ####
+hist(resid(lm1)) ## residuals should be normally distributed; compare to "Normality of residuals" from check_model
+
+plot(resid(lm1)~fitted(lm1))  ## residuals should be evenly dispersed around 0 across the range of x's
+abline(h=0)                             # funnel shapes or curvature is bad; compare to "Homoscedasticity" from check_model
+
+qqPlot(resid(lm1))  ## calls from car package, residuals should line up pretty closely to the blue line
+
+## points that drift from line may be outliers
 ## problems with residuals indicate assumptions of the linear model are violated and may cause problems with coefficients and p-values
 ## transforming the data may help
 ## assumptions can be slightly violated without causing problems, for example this model is seems decent
@@ -53,7 +59,7 @@ fixef(lm1)   ## look at model coefficients
 ### the easystats package has a few useful functions for printing off model components
 model_parameters(lm1)   ## look at model coefficients, slightly different than summary() based on how it summarizes the posteriors
 
-estimate_expectation(lm1) ## this will print off the fitted vales and residuals
+estimate_expectation(lm1) ## this will print off the fitted vales and residuals, which can be helpful for plotting
 
 model_performance(lm1)  ## examine model performance metrics
 
