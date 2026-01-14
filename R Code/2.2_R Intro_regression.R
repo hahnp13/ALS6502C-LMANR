@@ -2,9 +2,10 @@
 library(tidyverse)
 library(car)
 library(glmmTMB)
-library(broom.mixed)
+library(easystats)
 library(MuMIn)
 
+## generate some fake data ####
 set.seed(21)
 temp <- round(runif(20,12,30), 2)            
 mass <- round(rnorm(20,5*temp,25), 2)
@@ -32,6 +33,9 @@ abline(h=0)                             # funnel shapes or curvature is bad
 qqPlot(resid(lm1))  ## calls from car package, residuals should line up pretty closely to the blue line
 ## points that drift from line may be outliers
 
+## simple way to check from easystats package
+check_model(lm1)
+
 ## problems with residuals indicate assumptions of the linear model are violated and may cause problems with coefficients and p-values
 ## transforming the data may help
 ## assumptions can be slightly violated without causing problems, for example this model is seems decent
@@ -46,12 +50,12 @@ summary(lm1)        ## summary() will provide the model coefficients (ie. the "g
 ### other ways to get model coefficients ####
 fixef(lm1)   ## look at model coefficients
 
-### the broom.mixed package has a few useful functions for printing off model components
-tidy(lm1, conf.int=TRUE)    ## look at model coefficients, allows a way to extract coefficients for using in other things.
-# tidy() function is usually more useful than summary() because it prints off the coefficients in a more convient way.
+### the easystats package has a few useful functions for printing off model components
+model_parameters(lm1)   ## look at model coefficients, slightly different than summary() based on how it summarizes the posteriors
 
-glance(lm1) ## glance() can be used to look at other components of the model
-augment(lm1) ## augment will print off the fitted vales and residuals
+estimate_expectation(lm1) ## this will print off the fitted vales and residuals
+
+model_performance(lm1)  ## examine model performance metrics
 
 r2(lm1) ## calculate R2 (use R2, not adj. R2)
 
@@ -62,6 +66,8 @@ Anova(lm1, type=2)  ## produces an ANOVA table
 # not super useful for regressions, because we see similar info in the summary() but can look at
 # this will be much for helpful for categorical variables and interactions later in the course
 
+
+# STEP 5. Make a nice plot ####
 
 ## fancy-ish plot ####
 ggplot(r1, aes(x=temp, y=mass))+

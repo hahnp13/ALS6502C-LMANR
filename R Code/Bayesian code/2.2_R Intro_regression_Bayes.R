@@ -2,10 +2,11 @@
 library(tidyverse)
 library(car)
 library(brms)
-library(cmdstanr)
+library(cmdstanr) ## install.packages("cmdstanr", repos = c('https://stan-dev.r-universe.dev', getOption("repos")))
 library(broom.mixed)
 library(easystats)
 
+## generate some fake data ####
 set.seed(21)
 temp <- round(runif(20,12,30), 2)            
 mass <- round(rnorm(20,5*temp,25), 2)
@@ -37,10 +38,11 @@ get_prior(bf(mass~temp), data=r1)
 
 ## set priors for the two parameters the model will estimate, the intercept and slope (it also estimates the standard deviation or sigma, but the default ok)
 mean(r1$mass)
+sd(r1$mass)
 
 priors <- c(prior(normal(100,50), class="Intercept"),
             prior(normal(0,5), class="b"),
-            prior(student_t(3, 0, 33.3), class="sigma")
+            prior(student_t(3, 0, 33.3), class="sigma", lb=0)
             )
 
 
@@ -107,15 +109,17 @@ model_parameters(bm1)   ## look at model coefficients, slightly different than s
 
 estimate_prediction(bm1) ## this will print off the fitted vales and residuals
 
+model_performance(bm1)  ## examine model performance metrics
+
+# check R2 for fit
+r2(bm1) ## calculate R2 (use R2, not adj. R2)
 
 # STEP 4. Check significance ####
 hypothesis(bm1, "temp > 0") ## model_parameters above is similar, can also use estimate_slopes()
 estimate_slopes(bm1)
 
-# check R2 for fit
-r2(bm1) ## calculate R2
 
-
+# STEP 5. Make a nice plot ####
 ## quick plot ####
 plot(conditional_effects(bm1), points=T)
 
