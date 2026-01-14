@@ -2,6 +2,7 @@
 library(tidyverse)
 library(car)
 library(glmmTMB)
+library(easystats)
 
 # ---------------------------------------------------------
 # Step 1: Background Information #####
