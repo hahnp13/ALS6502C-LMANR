@@ -45,7 +45,7 @@ summary(lm2)   ## summary() will provide the model coefficients (ie. the "guts" 
 model_parameters(lm2) # examine coefficents from easystats package
 
 
-# STEP 4. Check significane with Anova table ####
+# STEP 4. Check significance with Anova table ####
 Anova(lm2)  ## car::Anova will print out an ANOVA table testing 
                      # the null hypothesis that all group means are equal
                      # type = 2 (default) provides Type II sums of squares, which is usually the best way to go. See course manual for notes about Type II vs III
@@ -57,9 +57,16 @@ estimate_means(lm2, ~spray) ## calls emmeans
 
 emmeans::emmeans(lm2, ~spray) ## can call emmeans directly from package
 
-# STEP pairwise comparisons of group means ####
-estimate_contrasts(lm2)
+# STEP 6. pairwise comparisons of group means ####
+estimate_contrasts(lm2) # from easystats package
+                         # this code will conduct pairwise comparisons between all groups (ie. compare each group mean to the others)
+                         # note that p-values are NOT adjusted for multiple comparisons here
 
+estimate_contrasts(lm2, p_adjust="tukey") ## VERY IMPORTANT TO INCLUDE p_adjust="tukey" (in this case, not so much though because we only have 4 groups)
+                                           # when conducting multiple pairwise comparisons, the chance of a Type I error increases
+                                           # adjusting p-values helps control for this problem
+
+## example using emmeans package directly (often perferred over estimate_contrasts b/c you have more control)
 emmeans(lm2, pairwise~spray)  ## adding 'pairwise' will conduct pairwise contrasts -- ie. compare each group mean to the others
                                # automatically adjusts p-values using the 'tukey' adjust. Can change this if you want using adjust=XX
 
