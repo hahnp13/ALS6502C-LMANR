@@ -1,5 +1,6 @@
 #---- Upload all packages ----
 # install.packages("palmerpenguins")
+# install.packages("janitor")
 library(palmerpenguins) ## install if needed
 library(tidyverse)
 library(janitor)
