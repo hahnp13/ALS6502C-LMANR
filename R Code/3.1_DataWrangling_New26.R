@@ -1,7 +1,5 @@
 #---- Upload all packages ----
-# install.packages("palmerpenguins")
-# install.packages("janitor")
-library(palmerpenguins) ## install if needed
+library(palmerpenguins)
 library(tidyverse)
 library(janitor)
 
@@ -14,6 +12,8 @@ print(pen)
 head(pen)
 tail(pen)
 glimpse(pen)
+
+pen %>% glimpse()
 
 summary(pen)
 
@@ -51,6 +51,8 @@ full_pen <- penguins_raw %>%
   clean_names() %>% 
   filter(clutch_completion == "No") 
 
+full_pen
+
 ## ---- separating double values ---- 
 
 full_pen <- penguins_raw %>% 
@@ -61,7 +63,7 @@ full_pen <- penguins_raw %>%
            sep = " \\(") %>% 
   mutate(scientific_name = str_remove(scientific_name, "\\)"))
 
-pen <- penguins_raw %>% 
+full_pen <- penguins_raw %>% 
   select(-c(studyName,Comments)) %>%  
   clean_names() %>% 
   filter(clutch_completion == "No")  %>% 
@@ -69,11 +71,20 @@ pen <- penguins_raw %>%
                        names = c("common_name", "scientific_name")) %>% 
   mutate(scientific_name = str_remove(scientific_name, "\\)"))
 
-# combining two column 
+# combining two columns 
 
 full_pen$common_and_species <- paste(full_pen$common_name, full_pen$scientific_name)
 
 full_pen <- full_pen %>% 
+  mutate(common_and_species = paste(common_name, scientific_name))
+
+full_pen <- penguins_raw %>% 
+  select(-c(studyName,Comments)) %>%  
+  clean_names() %>% 
+  filter(clutch_completion == "No")  %>% 
+  separate_wider_delim(species, delim = " (",
+                       names = c("common_name", "scientific_name")) %>% 
+  mutate(scientific_name = str_remove(scientific_name, "\\)")) %>% 
   mutate(common_and_species = paste(common_name, scientific_name))
 
 ## ---- adding and modifying variables ----
@@ -87,13 +98,14 @@ full_pen$number <- 1:length(full_pen$sample_number)
 
 # subbing and replacing 
 
-full_pen <- full_pen %>% 
-  mutate(sex = sub("MALE", "m", sex))
+full_pen %>% 
+  mutate(sex = sub("MALE", "m", sex)) %>% 
+  pull(sex)
 
-full_pen <- full_pen %>% mutate(sex = case_when(
-  sex == "MALE" ~ "m",
-  sex == "FEMALE" ~ "f",
-  TRUE ~ sex))
+full_pen <- full_pen %>% 
+  mutate(sex = case_when(sex == "MALE" ~ "m",
+                         sex == "FEMALE" ~ "f",
+                         TRUE ~ sex)) 
 
 # using if_else instead: (If sex is "MALE", make it "m", otherwise make it "f")
 
@@ -110,7 +122,8 @@ full_pen_grouped <- full_pen %>%
 
 # getting the mean, and other values 
 
-full_pen %>% summarize(mean_culmen_depth = mean(culmen_depth_mm, na.rm = T))
+full_pen %>% 
+  summarize(mean_culmen_depth = mean(culmen_depth_mm, na.rm = T))
 
 mean(full_pen$culmen_depth_mm, na.rm = T)
 
@@ -126,20 +139,31 @@ full_pen_flipper <- full_pen %>%
 
 ## ---- Reshaping data ---- 
 
-penguins_long <- full_pen %>%
+wide <- full_pen %>% 
+  select(c(scientific_name,flipper_length_mm, culmen_length_mm, culmen_depth_mm, body_mass_g))
+
+wide <- wide %>%
   pivot_longer(
     cols = c(flipper_length_mm, culmen_length_mm, culmen_depth_mm, body_mass_g),
     names_to = "Trait",
     values_to = "value"
   )
 
-tail(penguins_long)
+head(wide)
 
-library(ggplot2)
+## ---- Joining data ----
+
+joined_pen <- penguins_raw %>% 
+  clean_names() %>% 
+  left_join(full_pen, by = "sample_number")
+
+glimpse(joined_pen)
+
+
 library(viridis)
 
 ggplot(full_pen, aes(x = scientific_name, y = body_mass_g, fill = scientific_name)) +
-  geom_boxplot(alpha = 0.8, outlier.shape = 21) +
+  geom_boxplot(alpha = 0.8) +
   scale_fill_viridis(discrete = TRUE, option = "plasma") +
   labs(
     x = "Species",
@@ -152,4 +176,3 @@ ggplot(full_pen, aes(x = scientific_name, y = body_mass_g, fill = scientific_nam
     axis.text.y = element_text(size = 16),
     axis.title = element_text(size = 18),
     plot.title = element_text(face = "bold", size = 20, hjust = 0.5))
-
