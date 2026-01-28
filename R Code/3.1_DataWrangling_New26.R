@@ -27,9 +27,6 @@ unique(pen$species)
 
 ## ---- filtering & cleaning names ----
 
-penguins_raw %>% print()
-penguins_raw %>% glimpse()
-
 unique(penguins_raw$Species)
 unique(penguins_raw$Island)
 
