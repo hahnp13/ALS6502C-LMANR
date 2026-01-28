@@ -12,7 +12,7 @@ library(viridis)
 
 ## Part 1: Examine the yield dataset
 data("ortiz.tomato.yield")
-yield <- as_tibble(ortiz.tomato.yield)
+yield <- as.data.frame(ortiz.tomato.yield)
   
 head(yield)
 str(yield)
