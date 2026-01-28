@@ -52,7 +52,7 @@ skim(yield) # from skimr package
 ##     Hint #2: You may need to merge the two datasets into one big one so that you can filter based on Driv.
 
 data("ortiz.tomato.covs")
-covs <- as_tibble(ortiz.tomato.covs)
+covs <- as.data.frame(ortiz.tomato.covs)
 
 head(covs)
 str(covs)
