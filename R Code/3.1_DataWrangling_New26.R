@@ -91,7 +91,8 @@ full_pen$number <- 1:length(full_pen$sample_number) # this adds a column that nu
 full_pen <- full_pen %>% 
   mutate(sex = sub("MALE", "m", sex)) # one way to sub and replace this, is using "sub". the funciton "gsub" is different, as it will replace EVEYRTHING that contains those characters
 
-full_pen <- full_pen %>% mutate(sex = case_when(sex == "MALE" ~ "m", sex == "FEMALE" ~ "f", TRUE ~ sex)) # If subbing whole variables, my preferred method is case_when 
+full_pen <- full_pen %>% 
+  mutate(sex = case_when(sex == "MALE" ~ "m", sex == "FEMALE" ~ "f", TRUE ~ sex)) # If subbing whole variables, my preferred method is case_when 
 
 
 # using if_else instead: (If sex is "MALE", make it "m", otherwise make it "f")
@@ -105,7 +106,7 @@ full_pen_grouped <- full_pen %>%
   select(c(island, scientific_name, body_mass_g)) %>% 
   group_by(island) # group by is great, groups by whatever you tell it to. you can do multiple variables
 
-## ---- Summarizing your data ---- #island# ---- Summarizing your data ---- 
+## ---- Summarizing your data ---- 
 
 # getting the mean, and other values 
 
@@ -122,8 +123,6 @@ full_pen_flipper <- full_pen %>%
   select(c(island, scientific_name, flipper_length_mm)) %>% 
   group_by(scientific_name) %>% 
   summarize(mean_flipper_length = mean(flipper_length_mm, na.rm = T)) # this is jusy putting select, group_by, and summ. together. BE CAREFUL WITH THE ORDER YOU PUT THESE IN, R runs by line, so you don't want to override a command that should follow another one
-
-## ---- Reshaping data ---- 
 
 ## ---- Reshaping data ---- 
 
@@ -184,7 +183,7 @@ scale_fill_viridis(discrete = TRUE, option = "plasma") +                        
   theme_bw(base_size = 30) +                                                          # clean black and white theme, larger text
   theme(
     legend.position = "none",                                                         # remove legend
-    axis.text.x = element_text(hjust = 0.5, size = 16),                                # center and size x axis text
+    axis.text.x = element_text(hjust = 1, size = 16, angle = 45),                                # center and size x axis text
     axis.text.y = element_text(size = 16),                                            # y axis tick text size
     axis.title = element_text(size = 18),                                             # axis title size
     plot.title = element_text(face = "bold", size = 20, hjust = 0.5))                  # bold, centered, larger title
