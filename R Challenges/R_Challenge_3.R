@@ -12,7 +12,7 @@ library(viridis)
 
 ## Part 1: Examine the yield dataset
 data("ortiz.tomato.yield")
-yield <- as_tibble(ortiz.tomato.yield)
+yield <- as.data.frame(ortiz.tomato.yield)
   
 head(yield)
 str(yield)
@@ -52,7 +52,7 @@ skim(yield) # from skimr package
 ##     Hint #2: You may need to merge the two datasets into one big one so that you can filter based on Driv.
 
 data("ortiz.tomato.covs")
-covs <- as_tibble(ortiz.tomato.covs)
+covs <- as.data.frame(ortiz.tomato.covs)
 
 head(covs)
 str(covs)
