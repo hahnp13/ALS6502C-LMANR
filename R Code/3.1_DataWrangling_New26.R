@@ -173,7 +173,7 @@ penguin_means   # combined table with all species, even if missing in one
 
 ggplot(full_pen, aes(x = scientific_name, y = body_mass_g, fill = scientific_name)) +   # base plot with species on x and body mass on y
   geom_boxplot(alpha = 0.5, outlier.shape = 21) +  
-  geom_jitter() + # boxplots with semi transparency and round outliers
+  geom_jitter(size = 2) + # boxplots with semi transparency and round outliers
   facet_wrap(~island) +                                                               # separate panels by island
 scale_fill_viridis(discrete = TRUE, option = "plasma") +                             # colorblind friendly palette
   labs(
@@ -182,9 +182,10 @@ scale_fill_viridis(discrete = TRUE, option = "plasma") +                        
     title = "Body Mass Variation Across Penguin Species\n(Clutch Completion = No)") + # main title with line break
   theme_bw(base_size = 30) +                                                          # clean black and white theme, larger text
   theme(
-    legend.position = "none",                                                         # remove legend
-    axis.text.x = element_text(hjust = 1, size = 16, angle = 45),                                # center and size x axis text
+    legend.position = "top",                                                         # remove legend
+    axis.text.x = element_text(hjust = 1, size = 12, angle = 60),                                # center and size x axis text
     axis.text.y = element_text(size = 16),                                            # y axis tick text size
     axis.title = element_text(size = 18),                                             # axis title size
-    plot.title = element_text(face = "bold", size = 20, hjust = 0.5))                  # bold, centered, larger title
+    plot.title = element_text(face = "bold", size = 20, hjust = 0.5), 
+    legend.title = element_text(size = 2))                  # bold, centered, larger title
 
