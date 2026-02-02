@@ -3,11 +3,11 @@ library(tidyverse)
 library(agridat)
 library(corrplot) #new package
 library(EnvStats) #new package
-library(skimr)
+library(skimr)    #new package
 
 # 1.  LOAD AND VIEW Anderson'S IRIS DATA USING BASE R #################
 data(iris) # load data (already exists in base R)
-iris[8,3] <- 7 # plant datapoint for demo
+iris[8,3] <- 7 # add fake datapoint for demo
 head(iris) # print first 6 lines of dataset
 tail(iris) # print last 6 lines of dataset
 
@@ -49,6 +49,9 @@ library(outliers) ## new packages
 grubbs.test(iris$Petal.Length) ## full dataset
 grubbs.test(iris$Petal.Length[iris$Species=='setosa']) ## just species setosa
 grubbs.test(iris$Petal.Length[iris$Species=='setosa'], opposite=T) ## test lower outlier for species setosa
+
+setos <- iris %>% filter(Species=='setosa')
+rosnerTest(setos$Petal.Length)
 
 ## remove outlier and remake boxplot. filter with | (OR) will select all observations where one condition is met but not the other. 
 iris1 <- iris %>% filter(Petal.Length<4 | !Species=='setosa')
