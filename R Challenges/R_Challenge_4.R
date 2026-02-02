@@ -30,7 +30,7 @@ glimpse(yield)
 
 ## Look at median, means, etc. to check for skew
 
-### skim and skim by group
+### skim and skim by group (or summarize by group)
 
 
 ################################################################################
