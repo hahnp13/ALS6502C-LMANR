@@ -26,11 +26,11 @@ glimpse(yield)
 #################################################################################
 # Q1. Check for 1) outliers and 3) distribution (ie. normality) in the response variable of "yield"  ####
 
-## Examine plots to visually assess for outliers and distribution, plot by 
+## Examine plots to visually assess for outliers and distribution, plot by env
 
-## Look at median, means, etc. to check for skew
+## Look at median, means, etc. to check for skew (be careful with normality and outlier tests)
 
-### skim and skim by group (or summarize by group)
+### skim and skim by group (optional)
 
 
 ################################################################################
