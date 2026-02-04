@@ -2,6 +2,8 @@
 library(tidyverse)
 library(agridat) 
 library(GGally)
+library(skimr)
+library(corrplot)
 
 ## Examine the ortiz.tomato.yield dataset. The help gives decent metadata (but it's not great).
 ## The study grew several tomato genotypes at 18 sites around the world
@@ -17,7 +19,7 @@ data("ortiz.tomato.covs")
 ## merge together the two data frames
 ## today we will work with two genotypes (OP15 and OP3) rather than all 15 genos
 ## convert the following variables to factors: gen, Driv, Trim, Irr
-## call the new dataset 'yield'
+## call the new dataset 'tom1'
 
 # Q2: examine data structure and view the dataframe. We will focus on the response variable "yield" ####
 
