@@ -9,22 +9,20 @@ library(GGally)
 ## The ortiz.tomato.yield dataset contains data on yield for a bunch of plants grown at each site.
 ?ortiz.tomato
 
-## Preparation: merge yield and covs dataset and select variables of interest
+## Preparation: load in the yield and covs dataset 
 data("ortiz.tomato.yield")
 data("ortiz.tomato.covs")
 
-## today we will work with two genotypes (OP15 and OP3) rather than all 15 genos.
-yield <- ortiz.tomato.yield %>% filter(gen=='OP15'|gen=='OP3') %>% droplevels()  ## filter data. 
-            ## Need to use 'droplevels()' otherwise it "remembers" the levels that are filtered out. Sometimes it is problematic.
+# Q1: in one code chunk, do the following: ###########################################
+## merge together the two data frames
+## today we will work with two genotypes (OP15 and OP3) rather than all 15 genos
+## convert the following variables to factors: gen, Driv, Trim, Irr
+## call the new dataset 'yield'
 
-################################################################################
-## First, examine data structure. We will focus on the response variable "yield"
-head(yield)
-str(yield)
-glimpse(yield)
+# Q2: examine data structure and view the dataframe. We will focus on the response variable "yield" ####
 
-#################################################################################
-# Q1. Check for 1) outliers and 3) distribution (ie. normality) in the response variable of "yield"  ####
+
+# Q3. Check for 1) outliers, 2) variance/dispersion, and 3) distribution (ie. normality) in the response variable of "yield"  ####
 
 ## Examine plots to visually assess for outliers and distribution, plot by 
 
@@ -33,31 +31,22 @@ glimpse(yield)
 ### skim and skim by group (or summarize by group)
 
 
-################################################################################
-# Q2. Examine potential covariates for potential colinearity ####
-dat1 <- full_join(ortiz.tomato.covs,yield,by="env") %>% 
-  mutate(gen=as.factor(gen), Driv=as.factor(Driv), Trim=as.factor(Trim), Irr=as.factor(Irr))
-
-### Any potential problematic correlations?
-### Hint: use ggpairs(), may need to remove a problematic column
-
-
-## also try cor and corrplot
+# Q4. Examine potential covariates for potential colinearity ####
+### Hint: use ggpairs(), may need to remove columns that are factors
+### Any very high correlations?
 
 
 ### Focus just on a few covariates
-dat2 <- dat1 %>% 
-  select(gen, Driv, Dha,MnT,Prec,yield)
+ #### select(gen, Driv, Dha,MnT,Prec,yield)
+### color by gen to look at each genotype seperately
 
-
-################################################################################
-# Q3. Examine relationship between yield and potential covariates ####
+# Q5. Examine relationship between yield and potential covariates ####
 ## print off a table showing means and sd for the two genotypes and one more categorical variable (so 2 grouping factors; use Driv as the other grouping factor)
 
 #### make a boxplot showing how yield differs by genotype and one more categorical variable (Driv).
 ## hint: use x= and color= in the aes()
 
-ggplot(dat2, aes(x=gen, y=weight, color=as.factor(Driv))) + geom_boxplot()
+ggplot(dat2, aes(x=gen, y=yield, color=as.factor(Driv))) + geom_boxplot()
 
 #### make a scatterplot showing how one of your response variables (pick either yield or weight) differs by genotype and one continuous variable.
 ##  hint: use x= and color= in the aes()
