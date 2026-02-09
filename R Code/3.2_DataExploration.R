@@ -2,8 +2,8 @@
 library(tidyverse) 
 library(agridat)
 library(corrplot) #new package
-library(EnvStats) #new package
-library(skimr)    #new package
+library(EnvStats) #new package (optional, only needed for rosner test)
+library(skimr)    #new package (optional, only needed for skim)
 
 # 1.  LOAD AND VIEW Anderson'S IRIS DATA USING BASE R #################
 data(iris) # load data (already exists in base R)
@@ -21,7 +21,7 @@ skim(iris)
 
 # 2. Assess summary statistics and distribution ####
 
-## histogram of petal length
+## histogram of petal length ####
 ggplot(iris, aes(x = Petal.Length)) + geom_histogram(bins=12, color="white") + theme_bw(base_size = 16) +
   geom_vline(aes(xintercept= mean(Petal.Length)), color = "blue", size = 2) +
   geom_vline(aes(xintercept= median(Petal.Length)), color = "orange", size = 2)
@@ -32,7 +32,9 @@ ggplot(iris, aes(x = Petal.Length)) + geom_histogram(bins=12, color="white") +
 
 ## summary to examine mean, median, range
 summary(iris)
-iris %>% pivot_longer(cols=c(1:4)) %>% group_by(Species,name) %>% summarize(mean=mean(value),median=median(value)) ## table of means/medians by group
+iris %>% pivot_longer(cols=c(1:4)) %>% 
+  group_by(Species,name) %>% 
+  summarize(mean=mean(value),median=median(value)) ## table of means/medians by group
 
 # 3. Examine for outliers ####
 

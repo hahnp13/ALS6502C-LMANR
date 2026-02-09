@@ -26,7 +26,7 @@ data("ortiz.tomato.covs")
 
 # Q3. Check for 1) outliers, 2) variance/dispersion, and 3) distribution (ie. normality) in the response variable of "yield"  ####
 
-## Examine plots to visually assess for outliers and distribution, plot by env
+## Examine plots to visually assess for outliers and distribution, plot by gen
 
 ## Look at median, means, etc. to check for skew (be careful with normality and outlier tests)
 
