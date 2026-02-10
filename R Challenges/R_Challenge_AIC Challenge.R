@@ -5,7 +5,7 @@ library(GGally)
 library(skimr)
 library(bbmle)
 library(MuMIn)
-library(performance)
+library(easystats)
 
 ## Examine the ortiz.tomato.yield dataset. The help gives decent metadata (but it's not great).
 ## The study grew several tomato genotypes at 18 sites around the world
@@ -69,6 +69,9 @@ options(na.action = "na.fail") # need to run this line for dredge, for some reas
 #### Q4. Use AICc model selection to select the "best" model. Use AICctab rather than AICtab
 ####     What model is the "best"? Which models are within 4 AIC units. 6 units?
 
+compare_performance(ADDMODELSHERE, rank=T)
+
+## or from bblme package
 AICctab(ADDMODELSHERE, base=T, weights=T, delta=T)
 
 ### alternatively, you can use model.sel() from the MuMIn package, which provides more info
