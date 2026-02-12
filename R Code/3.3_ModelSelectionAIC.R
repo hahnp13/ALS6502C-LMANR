@@ -79,10 +79,16 @@ model_performance(global) ## look at model performance metrics for global modelo
 check_model(global)
 
 # Model averaging #### (not covered in class)
+## create list of models
+modtable <- model.sel(nullm, sample, seasonality, TEMP, NPP, seasonSR, global,nppsr,nppatr)
+modtable
+
+
 ## average top models within 2 AICc using MuMIn package ####
 topmodsall <- model.avg(modtable, subset = delta < 2)
 summary(topmodsall)
 
+## same as above, but manually specify the models to average, rather than using the model table
 topmods <- model.avg(seasonSR,seasonality,global)
 summary(topmods)
 
@@ -113,7 +119,7 @@ plot(topmodspred)
 plot(ggpredict(topmodsall, terms=c("ATR","SR")), add.data=T)
 
 ## maybe we just want to show only ATR, controlling for the other vars in the model
-plot(ggpredict(topmodsall, terms=c("ATR")), add.data=T) + theme_bw(base_size = 16)
+plot(ggpredict(topmodsall, terms=c("ATR"))) + theme_bw(base_size = 16)
 
 ## plot raw data
 atr_sr_plot <- ggplot(data = df) +
