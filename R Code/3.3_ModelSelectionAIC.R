@@ -129,3 +129,23 @@ atr_sr_plot <- ggplot(data = df) +
         legend.title = element_text(size = 15, face = 'bold'),
         legend.position = "top") 
 ggsave("ModSelectionPlot.png", atr_sr_plot, width = 6, height = 4, units = "in", dpi = 300)
+
+
+
+# Example of backwards selection using add1, drop1, and step ####
+
+## forward selection using add1, start with null model and add 1 term at a time
+add1(nullm, scope=formula(global), test="Chisq") # tests the effect of adding each term to the model
+add1(seasonality, scope=formula(global), test="Chisq") # tests the effect of adding each term to the model, starting with seasonality model
+add1(seasonSR, scope=formula(global), test="Chisq") # tests the effect of adding each term to the model, starting with seasonality model
+
+summary(seasonSR) ## best model from forward selection is seasonSR
+
+## backward selection using drop1, start with global model and drop 1 term at a time 
+drop1(global, test = "Chisq") # tests the effect of dropping each term from the model)
+drop1(seasonSR, test = "Chisq") # drop ATR, use model seasonSR
+summary(seasonSR) ## best model from backward selection is seasonSR
+
+## stepwise selection using step (which uses add1 and drop1 repeatedly)
+step(global, direction="both", test = "Chisq") # stepwise selection starting with global model
+summary(seasonSR) ## best model from stepwise selection is seasonSR, same as forward
