@@ -61,7 +61,7 @@ emmeans(lm2, ~spray, type='response') ## note that now all means are back-transf
 
 ## build poisson model ####
 ## construct a generalized linear model to examine the effect of the different sprays
-glm1 <- glmmTMB(count~spray, data=d, family='nbinom2')  ## glm is a general function that conducts a generalized linear model
+glm1 <- glmmTMB(count~spray, data=d, family='poisson')  ## glm is a general function that conducts a generalized linear model
 # must specify the 'family' (aka distribution). Default is 'gaussian' aka normal.  
 # all the "calculations" are saved in an object we called 'glm1'
 
