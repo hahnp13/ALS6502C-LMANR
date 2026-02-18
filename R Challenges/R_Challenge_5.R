@@ -5,7 +5,9 @@ library(emmeans)
 library(car)
 library(agridat)
 library(glmmTMB)
-library(performance)
+library(easystats)
+library(DHARMa)
+
 
 ## Load in and read about the beall.webworms dataset. The variables of interest are the y-count of webworms, 
 ## spray- spray treatment, and lead-lead treatment. Don't worry about the block or other variables for now.
@@ -23,9 +25,10 @@ ggplot(d1, aes(x=spray, y=y, fill=lead)) + geom_violin(scale="width", adjust=2) 
 ## Q1. Do webworm counts follow a normal distribution? Does it seem close enough?
 
 ## Q2. Construct a linear model with y as the predictor and Spray*Lead as the predictors.
-##     How are the residuals?
+##     How are the residuals? (use check_model() and/or simulateResisuals() from DHARMa)
 
 ## Q3. Try a log-transformation of y. How are the residuals? How do the emmeans differ between the linear and log-linear model?
+
 
 ## Q4. Try a generalized linear model using a Poisson distribution. How are the residuals? 
 ##      How do the emmeans differ between the linear and log-linear models?
@@ -34,14 +37,7 @@ ggplot(d1, aes(x=spray, y=y, fill=lead)) + geom_violin(scale="width", adjust=2) 
 
 
 
-## Q5. Use the DHARMa package to simulate residuals.
-       ## Note that you'll need to change the XXXX to your model name.
-       ## Examine residuals for the three models you created in Q2-Q4.
-
-library(DHARMa)
-plot(simulateResiduals(ENTER_MODEL_NAME_HERE))
-
-## Q6. Fit a model with a negative binomial distribution using glmmTMB() with family='nbinom2'
+## Q5. Fit a model with a negative binomial distribution using glmmTMB() with family='nbinom2'
 
 
 
