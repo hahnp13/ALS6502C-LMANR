@@ -24,10 +24,17 @@ ggplot(d1, aes(x=spray, y=y, fill=lead)) + geom_violin(scale="width", adjust=2) 
 
 ## Q1. Do webworm counts follow a normal distribution? Does it seem close enough?
 
-## Q2. Construct a linear model with y as the predictor and Spray*Lead as the predictors.
+## Q2. Construct a linear model with y as the response and Spray*Lead as the predictors.
 ##     How are the residuals? (use check_model() and/or simulateResisuals() from DHARMa)
+##     Optional: also look at raw/traditional residuals (hist, qqplot, plot residuals vs fitted, etc.)
+##     How do the emmeans differ between the different spray and lead treatments?
 
-## Q3. Try a log-transformation of y. How are the residuals? How do the emmeans differ between the linear and log-linear model?
+
+
+## Q3. Try a log-transformation of y 
+##     hint: first check a histogram of log(y+1) to see if it looks more normal then run model.
+##     How are the residuals? How do the emmeans differ between the linear and log-linear model?
+
 
 
 ## Q4. Try a generalized linear model using a Poisson distribution. How are the residuals? 
@@ -38,6 +45,7 @@ ggplot(d1, aes(x=spray, y=y, fill=lead)) + geom_violin(scale="width", adjust=2) 
 
 
 ## Q5. Fit a model with a negative binomial distribution using glmmTMB() with family='nbinom2'
-
+##     How are the residuals?
+##     How do the emmeans and SE differ between the four models? Discuss briefly which is most reasonable and why.
 
 
