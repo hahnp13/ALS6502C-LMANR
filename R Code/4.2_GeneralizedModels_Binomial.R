@@ -5,6 +5,7 @@ library(agridat)
 library(DHARMa)
 library(viridis)
 library(glmmTMB)
+library(easystats)
 
 # LOAD TITANIC SURVIVAL DATASET ####
 data("TitanicSurvival")
@@ -35,6 +36,9 @@ boxplot(residuals(tglm1) ~ t1$passengerClass)  ## variances should be homogeneou
 hist(simulateResiduals(tglm1))
 plot(simulateResiduals(tglm1))
 
+check_overdispersion(tglm1)
+
+check_model(tglm1) ## looks weird, not sure why (I think it struggles because response is yes/no). Model should be OK.
 
 ## print out emmeans
 emmeans(tglm1, pairwise ~ sex:passengerClass)
@@ -107,7 +111,20 @@ plot2 <- ggplot() +
   theme(text = element_text(size=20)) 
 plot2
 
-
+## plot with Age
+ggplot() + 
+  geom_jitter(data=t1 %>% filter(sex=='female'),
+              aes(x=age, y=surv+.01, color=sex),
+              height=0, width=.25, size=1, alpha=.2) +
+  geom_jitter(data=t1 %>% filter(sex=='male'), 
+              aes(x=age, y=surv-.01, color=sex), 
+              height=0, width=.25, size=1, alpha=.2) +
+  geom_smooth(data=t1, aes(x=age, y=surv, color=sex),
+              method="glm",method.args=list(family="binomial"), formula = y ~ x, se=T, linewidth=1.5) +
+  scale_y_continuous('survival', labels = scales::percent) +
+  scale_color_viridis(discrete = T, end=.8) +
+  facet_wrap(~passengerClass) + 
+  theme_bw(base_size = 20)
 
 
 
