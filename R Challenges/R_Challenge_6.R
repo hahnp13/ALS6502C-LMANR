@@ -5,7 +5,7 @@ library(emmeans)
 library(car)
 library(agridat)
 library(DHARMa)
-library(performance)
+library(easystats)
 library(glmmTMB)
 library(tidyverse)
 
@@ -32,7 +32,7 @@ hist(d1$y/d1$n) ## histogram of distribution
 ### HINT: you're response variable should be 'cbind(y, n-y)' (don't include the '')
 
 
-#3. Check the residuals. Does the model seem like a good fit to the data?
+#3. Check the residuals and overdispersion. Does the model seem like a good fit to the data?
 
 #3b. Correct for overdispersion, if necessary.
      #HINT: To correct for overdisperion with binomial, you have two options 
@@ -41,15 +41,11 @@ hist(d1$y/d1$n) ## histogram of distribution
 
 
 #4. Based on the model from Q2, is the effect of pest treatment significant?
-
-
-
-#5. Based on the model from Q2, is there evidence for overdispersion?
-
+    # compare both models to see how the p-values and SE change with the overdispersion correction.
 
 
 
 
-#6. Examine the predicted means or probabilities. How do they compare to the raw proportions from Q1?
+#5. Examine the predicted means or probabilities. How do they compare to the raw proportions from Q1?
 ## How Do the p-values compare between the overdispersed and corrected model?
 ## How much does the pesticide treatment (T2) compare to the control (T1)?
