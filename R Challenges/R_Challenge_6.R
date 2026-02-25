@@ -32,19 +32,21 @@ hist(d1$y/d1$n) ## histogram of distribution
 ### HINT: you're response variable should be 'cbind(y, n-y)' (don't include the '')
 
 
-#3. Based on the model from Q2, is the effect of pest treatment significant?
+#3. Check the residuals. Does the model seem like a good fit to the data?
+
+#3b. Correct for overdispersion, if necessary.
+     #HINT: To correct for overdisperion with binomial, you have two options 
+     #1) add an observation-level random effect (will return to this later)
+     #2) use a family=betabinomial (USE THIS OPTION)
 
 
-#4. Based on the model from Q2, is there evidence for overdispersion?
+#4. Based on the model from Q2, is the effect of pest treatment significant?
 
 
-#5. Check the residuals. Does the model seem like a good fit to the data?
+
+#5. Based on the model from Q2, is there evidence for overdispersion?
 
 
-#5b. Correct for overdispersion, if necessary.
-#HINT: To correct for overdisperion with binomial, you have two options 
-          #1) add an observation-level random effect (will return to this later)
-          #2) use a family=betabinomial (USE THIS OPTION)
 
 
 
