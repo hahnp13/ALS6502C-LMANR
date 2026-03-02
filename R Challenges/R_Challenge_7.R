@@ -13,7 +13,8 @@ ChickWeight$Diet <- as.factor(ChickWeight$Diet)
 ## plot out data
 ggplot(ChickWeight, aes(x=Time,y=weight))+geom_point()+facet_wrap(~Diet)+geom_smooth(method="lm")
 
-## Q1: Conduct a regular one-way ANOVA to see if weight differs among the four diets (ie. ignore time). Which ones differ?
+## Q1: Conduct a regular one-way ANOVA to see if weight differs among the four diets (ie. ignore time). 
+##     Which ones differ?
 
 
 
@@ -30,7 +31,7 @@ ggplot(ChickWeight, aes(x=Time,y=weight))+geom_point()+facet_wrap(~Diet)+geom_sm
 
 
 
-######## PART 2  
+# ----- PART 2 --------------------- #############################  
 library(lme4) # install if needed, can use instead of glmmTMB
 
 data("ChickWeight")
@@ -40,13 +41,14 @@ ChickWeight$Diet <- as.factor(ChickWeight$Diet)
 ##    Last time we did an ANCOVA to compare the weights at the end of the experiment (Time=20).
         ## Hint: add 'at=list(Time=20)'  to the emmeans statement.
 ##    The results seem overly strong (ie. the p-values seem artificially low). Are all observations independent?
-##    What might we not have considered that was part of the experimental design but was not accounted for in our analysis?
+##    What might have we not  considered that was part of the experimental design but was not accounted for in our analysis?
 ##    Construct a more appropriate model (use random effects if justified) and compare the diets.
 ##    Which diets differ significantly? How do the results differ from your model last week?
 
 
 ## Q5. How much variation is there among chicks? (ie. what is the variance component?)
 ##     How might this help to explain the difference in emmeans between your old and new model?
+
 
 ## Q6. Check residuals. How do they look? (we will return to this in a couple weeks to fix any potential issues)
 
