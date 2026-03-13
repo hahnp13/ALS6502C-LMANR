@@ -86,14 +86,32 @@ cw1toep_resid <- simulateResiduals(cw1toep)
 cw1toep_resid <- recalculateResiduals(cw1toep_resid, group=ChickWeight$Time)
 testTemporalAutocorrelation(cw1toep_resid, time=unique(ChickWeight$Time))
 
+
+## try OU structure (good for unequal time points) ####
+cw1ou <- glmmTMB(weight ~ Time*Diet + ou(0 + numFactor(Time)|Chick), data=ChickWeight)
+## warnings are not really a problem in this case
+summary(cw1ou)
+
+# check residuals
+plot(residuals(cw1ou)~fitted(cw1ou)) ## resids a little wonky, can check simulated residuals 
+simulateResiduals(cw1ou, plot=T) ## simulated residuals looks wonky
+check_model(cw1ou) ## several diagnostic plots from performance package, can be used in conjunction with DHARMa::simulateResiduals 
+
+# check autocorrelation
+cw1ou_resid <- simulateResiduals(cw1ou) 
+cw1ou_resid <- recalculateResiduals(cw1ou_resid, group=ChickWeight$Time)
+testTemporalAutocorrelation(cw1ou_resid, time=unique(ChickWeight$Time))
+
+
 #### compare AIC for models including more complex toep structure
-anova(cw1,cw1ar,cw1toep) # toep is best; ar1 is probably fine (way better than no autocorrelation) unstructred also ok (but complex)
-compare_performance(cw1,cw1ar,cw1toep) # compare with performance package
+anova(cw1,cw1ar,cw1toep,cw1ou) # toep is best; ar1 is probably fine (way better than no autocorrelation) unstructred also ok (but complex)
+compare_performance(cw1,cw1ar,cw1toep,cw1ou) # compare with performance package
 
 #### compare emmeans
 emmeans(cw1, pairwise~Diet, at=list(Time=20)) # Yes, 4 of 6 differ at time 20
 emmeans(cw1ar, pairwise~Diet, at=list(Time=20)) # Yes, 4 of 6 differ at time 20
 emmeans(cw1toep, pairwise~Diet, at=list(Time=20)) # means are low; probably ar1 is best
+emmeans(cw1ou, pairwise~Diet, at=list(Time=20)) # means are low; probably ar1 is best
 
 
 #### Add quadratic term and autoregressive covariance structure ####
@@ -107,8 +125,8 @@ plot(residuals(cw1arq)~fitted(cw1arq)) ## resids from model w/o autoregressive c
 plot(simulateResiduals(cw1arq))
 
 #### compare AIC for models
-AIC(cw1,cw1ar,cw1arq,cw1arq2)
-BIC(cw1,cw1ar,cw1arq,cw1arq2)
+AIC(cw1,cw1ar,cw1toep,cw1arq)
+BIC(cw1,cw1ar,cw1toep,cw1arq)
 
 ## plot out data with quadratic 
 ggplot(data=ChickWeight)+
