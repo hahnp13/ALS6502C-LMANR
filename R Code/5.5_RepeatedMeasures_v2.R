@@ -88,9 +88,12 @@ testTemporalAutocorrelation(cw1toep_resid, time=unique(ChickWeight$Time))
 
 
 ## try OU structure (good for unequal time points) ####
-cw1ou <- glmmTMB(weight ~ Time*Diet + ou(0 + numFactor(Time)|Chick), data=ChickWeight)
+cw1ou <- glmmTMB(weight ~ Time*Diet + ou(0 + numFactor(Time)|Chick),
+                 data=ChickWeight)
+
 ## warnings are not really a problem in this case
 summary(cw1ou)
+
 
 # check residuals
 plot(residuals(cw1ou)~fitted(cw1ou)) ## resids a little wonky, can check simulated residuals 
