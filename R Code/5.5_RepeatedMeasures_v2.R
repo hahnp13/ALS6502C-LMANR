@@ -24,10 +24,10 @@ ggplot(data=ChickWeight)+
   theme_bw(base_size = 16)
 
 ggplot(data=ChickWeight)+
-  geom_point(data=ChickWeight, aes(x=as.factor(Time),y=weight, color=as.numeric(Chick)))+
+  geom_point(data=ChickWeight, aes(x=Time,y=log(weight), color=as.numeric(Chick)))+
   scale_color_viridis() +
   facet_wrap(~Diet)+
-  #geom_smooth(data=ChickWeight, method="lm",aes(x=Time,y=weight))+
+  geom_smooth(data=ChickWeight, method="lm",aes(x=Time,y=log(weight)))+
   theme_bw(base_size = 16)
 
 # chick as a random (block) effect ####
@@ -72,7 +72,9 @@ check_autocorrelation(cw1ar)  ## basic test here, the DHARMa is a little more ro
 
 
 ## try toeplitz structure ####
-cw1toep <- glmmTMB(weight ~ Time * Diet + toep(0 + as.factor(Time)|Chick), data=ChickWeight, dispformula = ~0)
+cw1toep <- glmmTMB(weight ~ Time * Diet + toep(0 + as.factor(Time)|Chick), 
+                   data=ChickWeight, 
+                   dispformula = ~0) # need to set dispformula to ~0, variance is picked up by toep structure
 ## warnings are not really a problem in this case
 summary(cw1toep)
 
@@ -86,12 +88,12 @@ cw1toep_resid <- simulateResiduals(cw1toep)
 cw1toep_resid <- recalculateResiduals(cw1toep_resid, group=ChickWeight$Time)
 testTemporalAutocorrelation(cw1toep_resid, time=unique(ChickWeight$Time))
 
+check_autocorrelation(cw1toep)
 
 ## try OU structure (good for unequal time points) ####
-cw1ou <- glmmTMB(weight ~ Time*Diet + ou(0 + numFactor(Time)|Chick),
+cw1ou <- glmmTMB(weight ~ Time*Diet + ou(0 + numFactor(Time)|Chick), # need to use numFactor to specify that Time is numeric, otherwise it will treat it as a factor and not use the OU structure correctly
                  data=ChickWeight)
 
-## warnings are not really a problem in this case
 summary(cw1ou)
 
 
@@ -105,6 +107,7 @@ cw1ou_resid <- simulateResiduals(cw1ou)
 cw1ou_resid <- recalculateResiduals(cw1ou_resid, group=ChickWeight$Time)
 testTemporalAutocorrelation(cw1ou_resid, time=unique(ChickWeight$Time))
 
+check_autocorrelation(cw1ou)
 
 #### compare AIC for models including more complex toep structure
 anova(cw1,cw1ar,cw1toep,cw1ou) # toep is best; ar1 is probably fine (way better than no autocorrelation) unstructred also ok (but complex)
