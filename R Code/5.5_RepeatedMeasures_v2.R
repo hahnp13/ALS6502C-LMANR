@@ -38,13 +38,12 @@ plot(residuals(cw1)~fitted(cw1)) ## resids a little wonky, can check simulated r
 summary(cw1) 
 Anova(cw1) ## Anova() from car package. Diet p-value is low, but note it uses Wald Chi-sq test.
 
-## check residuals using DHARMa package ####
-simulateResiduals(cw1, plot=T) ## simulated residuals
 
-# check autocorrelation with DHARMa
+# check autocorrelation and residuals with DHARMa
 cw1_resid <- simulateResiduals(cw1) 
-cw1_resid <- recalculateResiduals(cw1_resid, group=ChickWeight$Time)
+cw1_resid <- recalculateResiduals(cw1_resid, group=ChickWeight$Time, rotation="estimated")
 testTemporalAutocorrelation(cw1_resid, time=unique(ChickWeight$Time), plot=T)
+plot(cw1_resid) ## rescaled to only have 12 points for 12 times (therefore not really valid to check) 
 
 ## check residuals with performance package ####
 check_model(cw1) ## several diagnostic plots from performance package, can be used in conjunction with DHARMa::simulateResiduals 
@@ -58,13 +57,12 @@ summary(cw1ar)
 
 plot(residuals(cw1ar)~fitted(cw1ar)) ## resids look good 
 
-## check residuals 
-simulateResiduals(cw1ar, plot=T) ## simulated residuals
-
 ## check autocorr in residuals
-cw1ar_resid <- simulateResiduals(cw1ar) ## need to group simulated residuals to check for autocorr
-cw1ar_resid <- recalculateResiduals(cw1ar_resid, group=ChickWeight$Time)
-testTemporalAutocorrelation(cw1ar_resid, time=unique(ChickWeight$Time))
+cw1ar_resid <- simulateResiduals(cw1ar) 
+cw1ar_resid <- recalculateResiduals(cw1ar_resid, group=ChickWeight$Time, rotation="estimated")
+testTemporalAutocorrelation(cw1ar_resid, time=unique(ChickWeight$Time), plot=T)
+plot(cw1ar_resid) ## rescaled to only have 12 points for 12 times (therefore not really valid to check) 
+
 
 ## check residuals with performance package ####
 check_model(cw1ar) ## several diagnostic plots from performance package, can be used in conjunction with DHARMa::simulateResiduals 
@@ -80,15 +78,14 @@ summary(cw1toep)
 
 # check residuals
 plot(residuals(cw1toep)~fitted(cw1toep)) ## resids a little wonky, can check simulated residuals 
-simulateResiduals(cw1toep, plot=T) ## simulated residuals looks wonky
 check_model(cw1toep) ## several diagnostic plots from performance package, can be used in conjunction with DHARMa::simulateResiduals 
+check_autocorrelation(cw1toep)
 
 # check autocorrelation
 cw1toep_resid <- simulateResiduals(cw1toep) 
-cw1toep_resid <- recalculateResiduals(cw1toep_resid, group=ChickWeight$Time)
+cw1toep_resid <- recalculateResiduals(cw1toep_resid, group=ChickWeight$Time, rotation="estimated")
 testTemporalAutocorrelation(cw1toep_resid, time=unique(ChickWeight$Time))
-
-check_autocorrelation(cw1toep)
+plot(cw1toep_resid) ## rescaled to only have 12 points for 12 times (therefore not really valid to check)
 
 ## try OU structure (good for unequal time points) ####
 cw1ou <- glmmTMB(weight ~ Time*Diet + ou(0 + numFactor(Time)|Chick), # need to use numFactor to specify that Time is numeric, otherwise it will treat it as a factor and not use the OU structure correctly
@@ -97,14 +94,13 @@ cw1ou <- glmmTMB(weight ~ Time*Diet + ou(0 + numFactor(Time)|Chick), # need to u
 summary(cw1ou)
 
 
-# check residuals
+# check model
 plot(residuals(cw1ou)~fitted(cw1ou)) ## resids a little wonky, can check simulated residuals 
-simulateResiduals(cw1ou, plot=T) ## simulated residuals looks wonky
 check_model(cw1ou) ## several diagnostic plots from performance package, can be used in conjunction with DHARMa::simulateResiduals 
 
-# check autocorrelation
+# check autocorrelation and simulated residuals
 cw1ou_resid <- simulateResiduals(cw1ou) 
-cw1ou_resid <- recalculateResiduals(cw1ou_resid, group=ChickWeight$Time)
+cw1ou_resid <- recalculateResiduals(cw1ou_resid, group=ChickWeight$Time, rotation="estimated")
 testTemporalAutocorrelation(cw1ou_resid, time=unique(ChickWeight$Time))
 
 check_autocorrelation(cw1ou)
