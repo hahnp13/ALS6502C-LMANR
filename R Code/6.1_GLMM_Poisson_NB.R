@@ -19,6 +19,46 @@ glmm1 <- glmmTMB(count ~ spray + (1|block), data=d, family="poisson")
 summary(glmm1)
 Anova(glmm1)
 
+### calculate Wald chi-squared test by hand ####
+coefs <- fixef(glmm1)$cond[2:4] ## extract model coefficients
+V <- vcov(glmm1)$cond[2:4,2:4]  ## extract variance-covariance matrix for the coefficients
+
+# Calculate Wald chi-square statistic
+W_X2 <- t(coefs) %*% solve(V) %*% coefs %>% as.numeric() %>% round(3)  # solve(V) is the inverse of the variance-covariance matrix
+W_X2
+
+# calculate p-value
+p_value <- pchisq(W_X2, df = 3, lower.tail = FALSE)
+p_value
+
+## compare to Anova() output
+Anova(glmm1) ## same X2 and p-value for spray as calculated by hand) 
+
+## make plot of chi-sq and p-value
+library(ggplot2)
+
+# Parameters
+df <- 3
+chi_sq_value <- W_X2
+
+# Create data for the chi-square distribution
+x <- seq(0, 125, length.out = 500)
+y <- dchisq(x, df = df)
+chi_df <- data.frame(x = x, y = y)
+
+# Create the plot
+ggplot(chi_df, aes(x = x, y = y)) +
+  geom_line(color = "blue") +
+  geom_vline(xintercept = chi_sq_value, 
+             color = "red", 
+             linetype = "dashed") +
+  labs(title = "Chi-Square Distribution (df = 3)",
+       x = "χ² Value",
+       y = "Density") +
+  theme_bw(base_size = 16)
+
+
+
 # Beall webworm data example ####
 ## Load in and read about the beall.webworms dataset. #### 
 ## The variables of interest are the y-count of webworms, 
@@ -84,7 +124,7 @@ hist(r3_blups$estimate, breaks=seq(-.8,.8,l=6), main="Hist of RE blups")
 ### 4. can compare models with and without random effects ####
 ## If the random effect was part of your experimental design you don't need to do this (just keep block in!)
 model.sel(r2,r3) ## from MuMIn
-AICtab(r1,r2,r3,base=T,logLik=T,weights=T)    ## from bbmle
+AICtab(r2,r3,base=T,logLik=T,weights=T)    ## from bbmle
 
 
 ## 4. Check significance ####
@@ -104,10 +144,10 @@ r.squaredGLMM(r3) ## from MuMIn, lognormal is same as performance
 r.squaredGLMM(r2) ## compare to no-block model
 
 
-#### EXTRA - Look at variance components and block blups
-library(broom.mixed)
-glance(r4)
+## EXTRA - Look at variance components and block blups, if you are interested in these values
 r3blups <- tidy(r3, effects="ran_vals")
+sd(r3blups$estimate)  ## similar to stdev of block in summary() output and below
+tidy(r3, effects="ran_pars") ## same as stdev in summary()
 
 ggplot(r3blups %>% group_by(level) %>% summarize(blup=mean(estimate),std.error=mean(std.error)) %>% 
          arrange(blup) %>% mutate(Block=factor(level, levels=level)), 
