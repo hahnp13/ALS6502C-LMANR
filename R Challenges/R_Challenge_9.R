@@ -9,6 +9,7 @@ library(DHARMa)
 library(MuMIn)
 library(tidyverse)
 library(performance)
+library(MASS) # for negative binomial distribution, install if needed
 
 ## read in and prepare data
 ## data from https://doi.org/10.5061/dryad.6djh9w0zj
