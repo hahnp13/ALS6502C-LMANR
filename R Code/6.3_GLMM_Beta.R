@@ -45,7 +45,7 @@ check_model(mod1)
 check_model(mod2)
 check_model(mod3)
 
-## Note: can't use AIC to compare these models because the response variable is different and families are different
+## NOTE: can't use AIC to compare these models because the response variable is different and families are different
 
 ## Look at coefficients to see how they change between families
 ## raw mean
@@ -62,50 +62,6 @@ emtrends(mod3, var="SeedSize_mg_log10", ~1) # slope for logit-transformation
 
 summary(mod1)
 r2(mod1)
-
-# check for zero inflation ####
-
-## ordbeta with zero inflation and ZI modeled by species (see hist on line 20) ####
-mod1a <- glmmTMB(Seed_loss_percent ~ SeedSize_mg_log10 + (1|Species) + (1|Site), zi=~1,
-                 family=ordbeta(link="logit"), data=s1)
-mod1b <- glmmTMB(Seed_loss_percent ~ SeedSize_mg_log10 + (1|Site) , zi=~(1|Species),
-                 family=ordbeta(link="logit"), data=s1)
-mod1c <- glmmTMB(Seed_loss_percent ~ SeedSize_mg_log10 + (1|Site) , zi=~Species,
-                 family=ordbeta(link="logit"), data=s1)
-## Note: we can use AIC to compare the three ordbeta models with different zi terms
-
-AIC(mod1,mod1a, mod1b, mod1c)
-
-plot(simulateResiduals(mod1b))
-check_model(mod1b)
-
-plot(simulateResiduals(mod1c))
-check_model(mod1c)
-
-summary(mod1c)
-
-## ZI ~Species model looks pretty good
-
-## print summary
-summary(mod1c)
-
-
-## print Anova table
-Anova(mod1c)
-
-## look at emmeans/emmtrends
-## raw mean
-mean(s1$Seed_loss_percent, na.rm=T)
-## emmeans
-emmeans(mod1c, ~1, type="response", component="cond") # mean for ordbeta without the ZI component of the model
-emmeans(mod1c, ~Species, type="response", component="zi") # mean for ZI component of the model
-emmeans(mod1c, ~Species, type="response", component="response") # mean overall taking into account both the conditional and ZI components
-
-## emtrends
-emtrends(mod1c, var="SeedSize_mg_log10", ~1) # slope for ordbeta model
-
-## r2
-r2(mod1c) # problems R2c
 
 
 # Make simple plot ####

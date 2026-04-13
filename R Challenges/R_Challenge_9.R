@@ -18,7 +18,7 @@ exp16$Year <- factor(exp16$Year, levels=c("Seedlings","Adults_Y3"))  ## reorder 
 levels(exp16$Year) <- c("Seedlings","Adults")
 
 ## filter data to exclude certain treatments
-dat1 <- exp16 %>% filter(Rodents=='+',Year=='Adults') %>% select(SiteCode,Competition,Species,Fecundity,numb)
+dat1 <- exp16 %>% filter(Rodents=='+',Year=='Adults') %>% dplyr::select(SiteCode,Competition,Species,Fecundity,numb)
 
 ## Use dat1 for the Challenge
 head(dat1)

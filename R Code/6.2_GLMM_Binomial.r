@@ -55,8 +55,10 @@ summary(mod2)
 ### Anova 
 Anova(mod2)
 
+Anova(mod1) ## note that the p-values are much smaller for the model without overdispersion correction -- this is a common issue with overdispersed data# 
+
 ### examine means
-emmeans(mod1, pairwise ~ inoculum, type="response")
+emmeans(mod2, pairwise ~ inoculum, type="response")
 
 ### r2
 r.squaredGLMM(mod2)
