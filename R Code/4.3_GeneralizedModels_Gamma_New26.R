@@ -5,6 +5,67 @@ library(agridat)
 library(DHARMa)
 library(glmmTMB)
 
+# Running Gamma GLMs ################################
+
+## simulate data for two groups ##############################
+set.seed(25)
+v1 <- rgamma(100, shape = 3, scale = .5) %>% as.data.frame()
+colnames(v1) <- "var"
+v1$group <- "one"
+head(v1)
+v2 <- rgamma(100, shape = 1, scale = .2) %>% as.data.frame()
+colnames(v2) <- "var"
+v2$group <- "two"
+head(v2)
+
+## bind and view dataset
+dat1 <- rbind(v1,v2) #mean group 1 = 1.5, group 2 = 0.5
+dat1 %>% mutate(obs=rep(1:100,2)) %>% group_by(obs) %>% pivot_wider(names_from = group,values_from = var) %>% 
+  ungroup() %>% select(one,two)
+
+
+#### plot histogram
+hist(dat1$var)
+ggplot(dat1, aes(x=var)) + geom_histogram(bins=8, fill="grey", color="black") + 
+  facet_wrap(~group, scales="free") + theme_bw(base_size = 16)
+
+#### construct model w/ normal distribution
+mod0 <- glmmTMB(var ~ group, data=dat1)
+plot(simulateResiduals(mod0))
+summary(mod0)
+emmeans(mod0, ~group, type="response")
+
+#### construct model w/ log-normal distribution
+mod0a <- glmmTMB(log(var) ~ group, data=dat1)
+plot(simulateResiduals(mod0a))
+summary(mod0a)
+emmeans(mod0a, ~group, type="response")
+
+#### construct model w/ Gamma distribution and inverse link
+mod1 <- glmmTMB(var ~ group, data=dat1, family=Gamma(link = "inverse"))
+plot(simulateResiduals(mod1))
+summary(mod1)
+emmeans(mod1, ~group, type="response")
+
+#### construct model w/ Gamma distribution and log link
+mod2 <- glmmTMB(var ~ group, data=dat1, family=Gamma(link = "log"))
+plot(simulateResiduals(mod2))
+summary(mod2)
+emmeans(mod2, ~group, type="response")
+
+#### construct model w/ lognormal distribution and log link
+mod3 <- glmmTMB(var ~ group, data=dat1, family=lognormal(link = "log"))
+plot(simulateResiduals(mod3))
+summary(mod3)
+emmeans(mod3, ~group, type="response")
+
+AIC(mod0,mod0a, mod1,mod2,mod3)
+# Note: AIC for the log-tranfomred model is not comparable because the response variable was transformed (and so on a different scale)
+# gaussian, Gamma, and lognormal are all comparable because they have the same response variable (var) and only differ in the error distribution and link function.
+
+
+####################################################################################################
+## old code below for zero-inflated gamma examples. Not sure if we will use this or not, but keeping here for now.
 # Gamma example 1 ####
 set.seed(15)
 var1 <- rgamma(100, shape = 2, scale = .5)
@@ -107,53 +168,3 @@ g1
 ## mean should be 1 with inverse link function
 exp(-1.992)
 
-# Running Gamma GLMs ################################
-
-## simulate data for two groups ##############################
-set.seed(25)
-v1 <- rgamma(100, shape = 3, scale = .5) %>% as.data.frame()
-colnames(v1) <- "var"
-v1$group <- "one"
-head(v1)
-v2 <- rgamma(100, shape = 1, scale = .2) %>% as.data.frame()
-colnames(v2) <- "var"
-v2$group <- "two"
-head(v2)
-
-## bind and view dataset
-dat1 <- rbind(v1,v2) #mean group 1 = 1.5, group 2 = 0.5
-dat1 %>% mutate(obs=rep(1:100,2)) %>% group_by(obs) %>% pivot_wider(names_from = group,values_from = var) %>% 
-  ungroup() %>% select(one,two)
-
-
-#### plot histogram
-hist(dat1$var)
-ggplot(dat1, aes(x=var)) + geom_histogram(bins=8, fill="grey", color="black") + 
-  facet_wrap(~group, scales="free") + theme_bw(base_size = 16)
-
-#### construct model w/ normal distribution
-mod0 <- glmmTMB(var ~ group, data=dat1)
-plot(simulateResiduals(mod0))
-summary(mod0)
-emmeans(mod0, ~group, type="response")
-
-#### construct model w/ log-normal distribution
-mod0a <- glmmTMB(log(var) ~ group, data=dat1)
-plot(simulateResiduals(mod0a))
-summary(mod0a)
-emmeans(mod0a, ~group, type="response")
-
-#### construct model w/ Gamma distribution and inverse link
-mod1 <- glmmTMB(var ~ group, data=dat1, family=Gamma(link = "inverse"))
-plot(simulateResiduals(mod1))
-summary(mod1)
-emmeans(mod1, ~group, type="response")
-
-#### construct model w/ Gamma distribution and log link
-mod2 <- glmmTMB(var ~ group, data=dat1, family=Gamma(link = "log"))
-plot(simulateResiduals(mod2))
-summary(mod2)
-emmeans(mod2, ~group, type="response")
-
-AIC(mod0,mod0a, mod0b, mod1,mod2)
-# Note: AIC for the log-model is not comparable because the response variable was transformed (and so on a different scale)

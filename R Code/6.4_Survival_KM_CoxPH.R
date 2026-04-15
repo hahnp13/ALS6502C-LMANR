@@ -1,3 +1,4 @@
+# Credit to Alex Bauer for writing this script ================================
 # # Before you start: Setting up environment ===================================
 # # Clean environment
 # rm(list = ls(all.names = TRUE)) # will clear all objects including hidden objects
@@ -16,6 +17,11 @@ library(survival)  # core survival analysis function
 # libraries for data visualizaiton
 library(survminer) # recommended for visualizing survival curves
 library(ggsurvfit) # alternative package for plotting time-to-event endpoints
+
+# aditional libraries
+library(car)
+library(emmeans)
+library(easystats)
 
 ## 1.2 Load and investigate dataset ----
 
@@ -86,7 +92,7 @@ ggsurvplot(s2,
            ylab = "Survival propability",
            ggtheme = theme_bw()) 
 
-#Note: each "+" represents a censored speciman
+#Note: each "+" represents a censored specimen
 # The curves are slightly divergent, but is the difference significant? 
 
 ### 3.2.1 Log rank test: cultivar ----
@@ -151,7 +157,7 @@ dat2 <- dat %>%
   mutate(population = as.factor(population))
 # investigate levels in new data set
 levels(dat2$population)
-# refeine the levels using the 'relevel()' function with ref.
+# refine the levels using the 'relevel()' function with ref.
 # e.g., set "Texas" as reference:
 dat2$population <- relevel(dat2$population, ref = "Texas")           
 levels(dat2$population)
@@ -164,14 +170,14 @@ summary(cox_m2b)
 # This value suggests that the hazard (risk of time) for the Florida group is about 1.188 times (or 18.8% higher than) that of Texas,
 # but this difference is not significant.
 
-anova(cox_m2)
+Anova(cox_m2)
 
 ## 4.3 Does insecticide residue influence survival? ----
 # # cox ph model with 'residue' as predictor
 cox_m3 <- coxph(Surv(time, status) ~ residue, data = dat)
 # use summary to examine the fitted object
 summary(cox_m3)
-anova(cox_m3)
+Anova(cox_m3)
 
 # # cox ph model with 'population' and 'residue' as predictor
 cox_m4 <- coxph(Surv(time, status) ~ population + residue, data = dat)
@@ -181,7 +187,7 @@ anova(cox_m4)
 
 # # cox ph model that includes "population", "residue" and the interaction term 
 cox_m5 <- coxph(Surv(time, status) ~ population*residue, data = dat)
-anova(cox_m5)
+Anova(cox_m5)
 
 # use anova() to compare the fitted Cox objects
 anova(cox_m4, cox_m5)
@@ -212,7 +218,7 @@ ggcoxzph(test.ph)
 
 # # cox_m5 corrected for ph violation of "population"
 cox_m5b <- coxph(Surv(time, status) ~ strata(population)*residue, data = dat)
-anova(cox_m5b)
+Anova(cox_m5b)
 
 # no violation of PH assumption 
 test.ph <- cox.zph(cox_m5b)
@@ -264,6 +270,14 @@ summary(cox_m5b)
 # 3.8179 + (–3.1056) ≈ 0.7123 
 # exp(0.7123) ≈ 2.04
 # --> for the Tx population, each 1-unit increase in residue doubles the hazard (HR ≈ 2)
+
+# can also use emtrends to get slopes
+emtrends(cox_m5b, pairwise~population, var = "residue") ## compare slopes
+emtrends(cox_m5b, ~population, var = "residue") %>%     ## expential slopes for each population
+  as.data.frame() %>% 
+  mutate(across(where(is.numeric), ~ exp(.x)))
+
+
 
 ### 4.4.2 Model performance  ----
 
